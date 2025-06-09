@@ -1,0 +1,25 @@
+{
+  "name": "techkonsulter_api_directus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "local": "CONFIG_PATH=\"config.js\" npx directus start",
+    "staging": "CONFIG_PATH=\"config.stg.js\" npx directus start",
+    "development": "CONFIG_PATH=\"config.dev.js\" npx directus start",
+    "production": "CONFIG_PATH=\"config.prod.js\" npx directus start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "directus": "^9.12.2",
+    "exceljs": "^4.4.0",
+    "moment": "^2.29.3",
+    "node-cron": "^3.0.1",
+    "pg": "^8.7.3",
+    "request": "^2.88.2",
+    "underscore": "^1.13.4"
+  }
+}
