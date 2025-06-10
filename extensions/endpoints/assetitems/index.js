@@ -1,4 +1,4 @@
-const { UPDATEPROJECTFINANCE, NERDFIXBULKUPDATE, CREATENERDFIXHISTORY } = require('../../Functions');
+const { UPDATEPROJECTFINANCE, NERDFIXBULKUPDATE, CREATENERDFIXHISTORY, UPDATEESTIMATEVALUEMOBILE, UPDATEESTIMATEVALUECOMPUTER } = require('../../Functions');
 const { ASSIGNSTOCKLISTVALUES, removeComplainData, removeComplainData_A_Grade, removeprocessorData, removeModelData } = require('../../Functions/mapvalues');
 
 module.exports = async function registerEndpoint(router, app) {
@@ -776,401 +776,330 @@ module.exports = async function registerEndpoint(router, app) {
 			});
 	});
 
-	router.get("/estimateassetvalues_computer", async (req, res) => {
-		// Estimate value A- Grade - COMPUTER TYPE
-		let computerResponse = [];
-		let computerResponse1 = [];
-		let results = [];
-		let sql1 = `SELECT
-		UPPER(form_factor) form_factor,
-		UPPER(model) model,
-		UPPER(processor) processor,
-		SUM(quantity) AS total_grade_sum,
-		string_agg(UPPER(processor)::text, ',') as "computer_info"
-		 from
-		public."Assets" where grade is not null and UPPER(asset_type) in ('COMPUTER') 
-		and UPPER(grade) in ('A','B','C') 
-		and LOWER(form_factor) in ('desktop','laptop') 
-		and date_nor::date >=  CURRENT_DATE - INTERVAL '2 months'
-		GROUP BY UPPER(model),UPPER(processor),UPPER(form_factor) limit 500`;
-		 console.log("sql1",sql1)
-		await database.raw(sql1)
-			.then(async (CompuRes) => {
-				console.log("===========>", CompuRes.rows)
-				computerResponse = CompuRes.rows;
-				for (const itm of computerResponse) {
-					// return
-					// last 2 months total sold grade
-					let sql2 = `select UPPER(model) model,UPPER(processor) processor,UPPER(form_factor) form_factor,
-				string_agg(UPPER(processor)::text, ',') as "computer_info",
-				UPPER(grade) grade,
-				sum(quantity) sold_qty,sum(sold_price) as tot_soldprice from public."Assets"
-				where
-				UPPER(asset_type) in ('COMPUTER')
-				and UPPER(grade) in ('A','B','C')
-				and LOWER(form_factor) in ('desktop','laptop') 
-				and (date_nor is not null) and date_nor::date >  CURRENT_DATE - INTERVAL '2 months'
-				and LOWER(processor) = '${itm.processor ? itm.processor.toLowerCase() : ''}'
-				and LOWER(model) = '${itm.model ? itm.model.toLowerCase() : ''}'
-				group by UPPER(model),UPPER(form_factor),UPPER(processor),UPPER(grade) order by UPPER(grade)`
-					await database.raw(sql2)
-						.then(async (CompuRes1) => {
-							computerResponse1 = CompuRes1.rows;
 
-							let form_factor = itm.form_factor.toLowerCase();
-							if (itm.computer_info && (form_factor === 'desktop' || form_factor === 'laptop')) {
-								itm.computer_info_2 = _.uniq(itm.computer_info.split(','));
-							}
+	// router.get("/estimateassetvalues_computer_bk", async (req, res) => {
+	// 	// let deletesql1 = `delete from estimate_values_computer`
+	// 	// await database.raw(deletesql1)
+	// 	// Estimate value A- Grade - COMPUTER TYPE
+	// 	let computerResponse = [];
+	// 	let computerResponse1 = [];
+	// 	let results = [];
+	// 	let sql1 = `SELECT
+	// 	UPPER(form_factor) form_factor,
+	// 	UPPER(model) model,
+	// 	UPPER(processor) processor,
+	// 	SUM(quantity) AS total_grade_sum,
+	// 	string_agg(UPPER(processor)::text, ',') as "computer_info"
+	// 	 from
+	// 	public."Assets" where grade is not null and UPPER(asset_type) in ('COMPUTER') 
+	// 	and UPPER(grade) in ('A','B','C') 
+	// 	and LOWER(form_factor) in ('desktop','laptop') 
+	// 	and date_nor::date >=  CURRENT_DATE - INTERVAL '2 months'
+	// 	and status in ('RESERVATION','SOLD')
+	// 	GROUP BY UPPER(model),UPPER(processor),UPPER(form_factor) limit 500`;
+	// 	await database.raw(sql1)
+	// 		.then(async (CompuRes) => {
+	// 			computerResponse = CompuRes.rows;
+	// 			for (const itm of computerResponse) {
+	// 				// return
+	// 				// last 2 months total sold grade
+	// 				let sql2 = `select UPPER(model) model,UPPER(processor) processor,UPPER(form_factor) form_factor,
+	// 			string_agg(UPPER(processor)::text, ',') as "computer_info",
+	// 			UPPER(grade) grade,
+	// 			sum(quantity) sold_qty,
+	// 			sum(sold_price) as tot_soldprice,
+	// 			UPPER(manufacturer) manufacturer 
+	// 			from public."Assets"
+	// 			where
+	// 			UPPER(asset_type) in ('COMPUTER')
+	// 			and UPPER(grade) in ('A','B','C')
+	// 			and LOWER(form_factor) in ('desktop','laptop') 
+	// 			and (date_nor is not null) and date_nor::date >  CURRENT_DATE - INTERVAL '2 months'
+	// 			and LOWER(processor) = '${itm.processor ? itm.processor.toLowerCase() : ''}'
+	// 			and LOWER(model) = '${itm.model ? itm.model.toLowerCase() : ''}'
+	// 			and status in ('RESERVATION','SOLD')
+	// 			group by UPPER(manufacturer),UPPER(model),UPPER(form_factor),UPPER(processor),UPPER(grade) order by UPPER(grade)`
+	// 				await database.raw(sql2)
+	// 					.then(async (CompuRes1) => {
+	// 						computerResponse1 = CompuRes1.rows;
+	// 						let form_factor = itm.form_factor.toLowerCase();
+	// 						if (itm.computer_info && (form_factor === 'desktop' || form_factor === 'laptop')) {
+	// 							itm.computer_info_2 = _.uniq(itm.computer_info.split(','));
+	// 						}
 
-							for (const itm2 of computerResponse1) {
-								// console.log("itm2",itm2)
-								let avg_prvice = (itm2.tot_soldprice / itm2.sold_qty)
-								itm2.last_60_days_sold = avg_prvice ? Math.round(avg_prvice) : 0 // Grade values
-								itm2.last_60_days_qty_sold = itm2.sold_qty;
-								let form_factor_2 = itm2.form_factor.toLowerCase();
+	// 						for (const itm2 of computerResponse1) {
+	// 							// console.log("itm2",itm2)
+	// 							let avg_prvice = (itm2.tot_soldprice / itm2.sold_qty)
+	// 							itm2.last_60_days_sold = avg_prvice ? Math.round(avg_prvice) : 0 // Grade values
+	// 							itm2.last_60_days_qty_sold = itm2.sold_qty;
+	// 							let form_factor_2 = itm2.form_factor.toLowerCase();
 
-								if (itm2.computer_info && (form_factor_2 === 'desktop' || form_factor_2 === 'laptop')) {
-									itm2.computer_info = _.uniq(itm2.computer_info.split(','));
-								}
-								let grade = itm2.grade?.toLowerCase().toString();
-								// let grade_2 = itm2.grade?.toLowerCase().toString();
-								let model = itm.model?.toLowerCase().toString();
-								let model_2 = itm2.model?.toLowerCase().toString();
-								let info = itm2.computer_info?.toString();
-								let info_2 = itm.computer_info_2?.toString();
-								itm2.asset_type = 'COMPUTER';
-								if (grade && model && model_2 && info && info_2 && model?.toLowerCase().includes(model_2) && info?.toLowerCase().includes(info_2.toLowerCase())) {
-									let fetchSOldQty = `select sum(quantity) tot_qty from public."Assets" where LOWER(processor) = '${itm2.processor ? itm2.processor.toLowerCase() : ''}' and LOWER(grade) = '${grade}' and LOWER(model) = '${model}' and status in ('RESERVATION','SOLD') and date_nor::date >  CURRENT_DATE - INTERVAL '2 months'`
-									await database.raw(fetchSOldQty)
-										.then(async (fetchSOldQtyResponse) => {
-											results.push(itm2)
-											const estimate_values_service_data = await estimate_values_service.readByQuery({
-												fields: ["id"],
-												filter: {
-													asset_type: {
-														_eq: 'COMPUTER'
-													},
-													model: {
-														_icontains: model,
-													},
-													processor: {
-														_icontains: itm2.processor,
-													},
-													grade: {
-														_icontains: grade,
-													}
-												},
-											});
-											if (fetchSOldQtyResponse.rows.length > 0 && fetchSOldQtyResponse.rows[0].tot_qty) {
-												itm2.last_6months_grade = Math.round((Number(fetchSOldQtyResponse.rows[0].tot_qty) / itm.total_grade_sum) * 100)
-												if (estimate_values_service_data.length > 0) {
-													return await estimate_values_service.updateOne(estimate_values_service_data[0].id,
-														itm2
-													).then((response1) => {
-														// res.json(response);
-														console.log("update techvaluator", response1)
-													}).catch((error1) => {
-													});
-												} else {
-													return await estimate_values_service.createOne(
-														itm2
-													).then((response1) => {
-														// res.json(response);
-														console.log("create techvaluator 1111", response1)
-													}).catch((error1) => {
-													});
-												}
-											} else {
-												itm2.last_6months_grade = 0
-												results.push(itm2)
-												if (estimate_values_service_data.length > 0) {
-													return await estimate_values_service.updateOne(estimate_values_service_data[0].id,
-														itm2
-													).then((response1) => {
-														// res.json(response);
-														console.log("update techvaluator", response1)
-													}).catch((error1) => {
-													});
-												} else {
-													return await estimate_values_service.createOne(
-														itm2
-													).then((response1) => {
-														// res.json(response);
-														console.log("create techvaluator", response1)
-													}).catch((error1) => {
-													});
-												}
-											}
-										})
-								}
-							}
-
-
-						}).catch((error1) => {
-							console.log("error ==> 1", error1)
-						});
-				}
-
-				res.send({
-					data: [...results],
-					status: 200
-				})
-
-			})
-			.catch((error) => {
-				res.send({
-					data: [],
-					status: 500
-				})
-			});
-	});
+	// 							if (itm2.computer_info && (form_factor_2 === 'desktop' || form_factor_2 === 'laptop')) {
+	// 								itm2.computer_info = _.uniq(itm2.computer_info.split(','));
+	// 							}
+	// 							let grade = itm2.grade?.toLowerCase().toString();
+	// 							// let grade_2 = itm2.grade?.toLowerCase().toString();
+	// 							let model = itm.model?.toLowerCase().toString();
+	// 							let model_2 = itm2.model?.toLowerCase().toString();
+	// 							let info = itm2.computer_info?.toString();
+	// 							let info_2 = itm.computer_info_2?.toString();
+	// 							itm2.asset_type = 'COMPUTER';
+	// 							if (grade && model && model_2 && info && info_2 && model?.toLowerCase().includes(model_2) && info?.toLowerCase().includes(info_2.toLowerCase())) {
+	// 								let fetchSOldQty = `select sum(quantity) tot_qty from public."Assets" where LOWER(processor) = '${itm2.processor ? itm2.processor.toLowerCase() : ''}' and LOWER(grade) = '${grade}' and LOWER(model) = '${model}' and status in ('RESERVATION','SOLD') and date_nor::date >  CURRENT_DATE - INTERVAL '2 months'`
+	// 								await database.raw(fetchSOldQty)
+	// 									.then(async (fetchSOldQtyResponse) => {
+	// 										results.push(itm2)
+	// 										const estimate_values_service_data = await estimate_values_service.readByQuery({
+	// 											fields: ["id"],
+	// 											filter: {
+	// 												asset_type: {
+	// 													_eq: 'COMPUTER'
+	// 												},
+	// 												model: {
+	// 													_icontains: model,
+	// 												},
+	// 												processor: {
+	// 													_icontains: itm2.processor,
+	// 												},
+	// 												grade: {
+	// 													_icontains: grade,
+	// 												}
+	// 											},
+	// 										});
+	// 										if (fetchSOldQtyResponse.rows.length > 0 && fetchSOldQtyResponse.rows[0].tot_qty) {
+	// 											itm2.last_6months_grade = Math.round((Number(fetchSOldQtyResponse.rows[0].tot_qty) / itm.total_grade_sum) * 100)
+	// 											if (estimate_values_service_data.length > 0) {
+	// 												return await estimate_values_service.updateOne(estimate_values_service_data[0].id,
+	// 													itm2
+	// 												).then((response1) => {
+	// 													// res.json(response);
+	// 													console.log("update techvaluator", response1)
+	// 												}).catch((error1) => {
+	// 												});
+	// 											} else {
+	// 												return await estimate_values_service.createOne(
+	// 													itm2
+	// 												).then((response1) => {
+	// 													// res.json(response);
+	// 													console.log("create techvaluator 1111", response1)
+	// 												}).catch((error1) => {
+	// 												});
+	// 											}
+	// 										} else {
+	// 											itm2.last_6months_grade = 0
+	// 											results.push(itm2)
+	// 											if (estimate_values_service_data.length > 0) {
+	// 												return await estimate_values_service.updateOne(estimate_values_service_data[0].id,
+	// 													itm2
+	// 												).then((response1) => {
+	// 													// res.json(response);
+	// 													console.log("update techvaluator", response1)
+	// 												}).catch((error1) => {
+	// 												});
+	// 											} else {
+	// 												return await estimate_values_service.createOne(
+	// 													itm2
+	// 												).then((response1) => {
+	// 													// res.json(response);
+	// 													console.log("create techvaluator", response1)
+	// 												}).catch((error1) => {
+	// 												});
+	// 											}
+	// 										}
+	// 									})
+	// 							}
+	// 						}
 
 
+	// 					}).catch((error1) => {
+	// 						console.log("error ==> 1", error1)
+	// 					});
+	// 			}
+
+	// 			res.send({
+	// 				data: [...results],
+	// 				status: 200
+	// 			})
+
+	// 		})
+	// 		.catch((error) => {
+	// 			res.send({
+	// 				data: [],
+	// 				status: 500
+	// 			})
+	// 		});
+	// });
+
+
+	// router.get("/estimateassetvalues_mobile_bk", async (req, res) => {
+	// 	// Estimate value A- Grade - COMPUTER TYPE
+	// 	let computerResponse = [];
+	// 	let results = [];
+	// 	let computerResponse1 = [];
+	// 	let sql4 = `SELECT 
+	// 	UPPER(hdd) hdd,
+	// 	UPPER(model) model,
+	// 	UPPER(form_factor) form_factor,
+	// 	string_agg(UPPER(hdd)::text, ',') as "mobile_info",
+	// 	SUM(quantity) AS total_grade_sum from
+	// 	public."Assets" where grade is not null 
+	// 	and UPPER(asset_type) in ('MOBILE','MOBILE DEVICE','MOBILE DEVICES') 
+	// 	and UPPER(grade) in ('A','B','C') 
+	// 	and LOWER(form_factor) in ('phone','tablet')
+	// 	and status in ('RESERVATION','SOLD')
+	// 	and date_nor::date >  CURRENT_DATE - INTERVAL '2 months'
+	// GROUP BY UPPER(model),UPPER(form_factor),UPPER(hdd)`
+	// 	// console.log("sql1", sql4)
+	// 	// and UPPER(model) like 'IPHONE 14 PRO BLACK'
+
+	// 	await database.raw(sql4)
+	// 		.then(async (CompuRes) => {
+	// 			computerResponse = CompuRes.rows;
+	// 			console.log("computerResponse", computerResponse)
+	// 			for (const itm of computerResponse) {
+	// 				// return
+	// 				// last 2 months total sold grade
+	// 				let sql5 = `select UPPER(model) model,UPPER(hdd) hdd,UPPER(manufacturer) manufacturer,UPPER(form_factor) form_factor,
+	// 				string_agg(UPPER(hdd)::text, ',') as "mobile_info",
+	// 				UPPER(grade) grade,sum(quantity) sold_qty,
+	// 				sum(sold_price) as tot_soldprice 
+	// 				from public."Assets" 
+	// 				where UPPER(asset_type) in ('MOBILE','MOBILE DEVICE','MOBILE DEVICES') 
+	// 				and UPPER(grade)  in ('A','B','C') 
+	// 				and LOWER(form_factor) in ('phone','tablet') 
+	// 				and (date_nor is not null) 
+	// 				and date_nor::date >  CURRENT_DATE - INTERVAL '2 months' 
+	// 				and UPPER(hdd) like '${itm.hdd}' and UPPER(model) like '${itm.model}'
+	// 				and status in ('RESERVATION','SOLD')
+	// 				group by UPPER(model),UPPER(form_factor),UPPER(manufacturer),UPPER(hdd),UPPER(grade) order by UPPER(grade)`
+	// 				// console.log("sql************", sql5)
+
+	// 				await database.raw(sql5)
+	// 					.then(async (CompuRes1) => {
+	// 						computerResponse1 = CompuRes1.rows;
+	// 						let form_factor = itm.form_factor.toLowerCase();
+	// 						if (itm.mobile_info && (form_factor === 'phone' || form_factor === 'tablet')) {
+	// 							itm.mobile_info_2 = _.uniq(itm.mobile_info.split(','));
+	// 						}
+
+	// 						for (const itm2 of computerResponse1) {
+	// 							// console.log("itm2",itm2)
+	// 							itm2.asset_type = 'MOBILE'
+	// 							let avg_prvice = (itm2.tot_soldprice / itm2.sold_qty)
+	// 							itm2.last_60_days_sold = avg_prvice ? Math.round(avg_prvice) : 0 // Grade values
+	// 							itm2.last_60_days_qty_sold = itm2.sold_qty;
+	// 							let form_factor_2 = itm2.form_factor.toLowerCase();
+	// 							if (itm2.mobile_info && (form_factor_2 === 'phone' || form_factor_2 === 'tablet')) {
+	// 								itm2.mobile_info = _.uniq(itm2.mobile_info.split(','));
+	// 							}
+	// 							let hdd = itm.hdd?.toLowerCase().toString();
+	// 							let hdd_2 = itm2.hdd?.toLowerCase().toString();
+	// 							let grade = itm2.grade?.toLowerCase().toString();
+	// 							let model = itm.model?.toLowerCase().toString();
+	// 							let model_2 = itm2.model?.toLowerCase().toString();
+	// 							let info = itm2.mobile_info?.toString();
+	// 							let info_2 = itm.mobile_info_2?.toString();
+	// 							if (grade && model && model_2 && info && info_2 && hdd && hdd_2 && (hdd_2 === hdd) && model?.toLowerCase().includes(model_2) && info?.toLowerCase().includes(info_2.toLowerCase())) {
+	// 								let fetchSOldQtyMobileSQL = `select sum(quantity) tot_qty from public."Assets" where LOWER(form_factor) = '${itm.form_factor ? itm.form_factor.toLowerCase() : ''}' and LOWER(grade) = '${grade}' and UPPER(hdd) like '${itm.hdd}' and LOWER(model) like '${model}' and status in ('RESERVATION','SOLD') and date_nor::date >  CURRENT_DATE - INTERVAL '2 months'`
+
+	// 								await database.raw(fetchSOldQtyMobileSQL)
+	// 									.then(async (fetchSOldQtyMobileResponse) => {
+	// 										//  console.log(fetchSOldQtyMobileSQL, "fetchSOldQtyMobileResponse.rows[0].tot_qty", fetchSOldQtyMobileResponse.rows[0].tot_qty)
+	// 										const estimate_values_service_data = await estimate_values_service.readByQuery({
+	// 											fields: ["id"],
+	// 											filter: {
+	// 												asset_type: {
+	// 													_eq: 'MOBILE'
+	// 												},
+	// 												model: {
+	// 													_icontains: model,
+	// 												},
+	// 												hdd: {
+	// 													_icontains: hdd,
+	// 												},
+	// 												grade: {
+	// 													_icontains: grade,
+	// 												}
+	// 											},
+	// 										});
+	// 										if (fetchSOldQtyMobileResponse.rows.length > 0 && fetchSOldQtyMobileResponse.rows[0].tot_qty) {
+	// 											itm2.last_6months_grade = Math.round((Number(fetchSOldQtyMobileResponse.rows[0].tot_qty) / Number(itm.total_grade_sum)) * 100)
+	// 											results.push(itm2)
+	// 											if (estimate_values_service_data.length > 0) {
+	// 												return await estimate_values_service.updateOne(estimate_values_service_data[0].id,
+	// 													itm2
+	// 												).then((response1) => {
+	// 													// res.json(response);
+	// 													console.log("update techvaluator", response1)
+	// 												}).catch((error1) => {
+	// 												});
+	// 											} else {
+	// 												return await estimate_values_service.createOne(
+	// 													itm2
+	// 												).then((response1) => {
+	// 													// res.json(response);
+	// 													console.log("create techvaluator 1111", response1)
+	// 												}).catch((error1) => {
+	// 												});
+	// 											}
+
+	// 										} else {
+	// 											itm2.last_6months_grade = 0
+	// 											results.push(itm2)
+	// 											if (estimate_values_service_data.length > 0) {
+	// 												return await estimate_values_service.updateOne(estimate_values_service_data[0].id,
+	// 													itm2
+	// 												).then((response1) => {
+	// 													// res.json(response);
+	// 													console.log("update techvaluator", response1)
+	// 												}).catch((error1) => {
+	// 												});
+	// 											} else {
+	// 												return await estimate_values_service.createOne(
+	// 													itm2
+	// 												).then((response1) => {
+	// 													// res.json(response);
+	// 													console.log("create techvaluator", response1)
+	// 												}).catch((error1) => {
+	// 												});
+	// 											}
+	// 										}
+	// 									}).catch((err_mob) => {
+	// 										console.log("error mobile ==> 1", err_mob)
+	// 									});
+	// 							}
+	// 						}
+
+
+	// 					}).catch((error1) => {
+	// 						console.log("error ==> 1", error1)
+	// 					});
+	// 			}
+
+	// 			res.send({
+	// 				data: [...results],
+	// 				status: 200
+	// 			})
+
+	// 		})
+	// 		.catch((error) => {
+	// 			res.send({
+	// 				data: [],
+	// 				status: 500
+	// 			})
+	// 		});
+	// });
 	router.get("/estimateassetvalues_mobile", async (req, res) => {
-		// Estimate value A- Grade - COMPUTER TYPE
-		let computerResponse = [];
-		let results = [];
-		let computerResponse1 = [];
-		let sql4 = `SELECT 
-		UPPER(hdd) hdd,
-		UPPER(model) model,
-		UPPER(form_factor) form_factor,
-		string_agg(UPPER(hdd)::text, ',') as "mobile_info",
-		SUM(quantity) AS total_grade_sum from
-		public."Assets" where grade is not null 
-		and UPPER(asset_type) in ('MOBILE','MOBILE DEVICE','MOBILE DEVICES') 
-		and UPPER(grade) in ('A','B','C') 
-		and LOWER(form_factor) in ('phone','tablet')
-		and date_nor::date >  CURRENT_DATE - INTERVAL '2 months'
-	GROUP BY UPPER(model),UPPER(form_factor),UPPER(hdd)`
-		// console.log("sql1", sql4)
-		// and UPPER(model) like 'IPHONE 14 PRO BLACK'
-
-		await database.raw(sql4)
-			.then(async (CompuRes) => {
-				computerResponse = CompuRes.rows;
-				console.log("computerResponse", computerResponse)
-				for (const itm of computerResponse) {
-					// return
-					// last 2 months total sold grade
-					let sql5 = `select UPPER(model) model,UPPER(hdd) hdd,UPPER(manufacturer) manufacturer,UPPER(form_factor) form_factor,
-					string_agg(UPPER(hdd)::text, ',') as "mobile_info",
-					UPPER(grade) grade,sum(quantity) sold_qty,
-					sum(sold_price) as tot_soldprice 
-					from public."Assets" 
-					where UPPER(asset_type) in ('MOBILE','MOBILE DEVICE','MOBILE DEVICES') 
-					and UPPER(grade)  in ('A','B','C') 
-					and LOWER(form_factor) in ('phone','tablet') 
-					and (date_nor is not null) 
-					and date_nor::date >  CURRENT_DATE - INTERVAL '2 months' 
-					and UPPER(hdd) like '${itm.hdd}' and UPPER(model) like '${itm.model}'
-					and status in ('RESERVATION','SOLD')
-					group by UPPER(model),UPPER(form_factor),UPPER(manufacturer),UPPER(hdd),UPPER(grade) order by UPPER(grade)`
-					// console.log("sql************", sql5)
-
-					await database.raw(sql5)
-						.then(async (CompuRes1) => {
-							computerResponse1 = CompuRes1.rows;
-							let form_factor = itm.form_factor.toLowerCase();
-							if (itm.mobile_info && (form_factor === 'phone' || form_factor === 'tablet')) {
-								itm.mobile_info_2 = _.uniq(itm.mobile_info.split(','));
-							}
-
-							for (const itm2 of computerResponse1) {
-								// console.log("itm2",itm2)
-								itm2.asset_type = 'MOBILE'
-								let avg_prvice = (itm2.tot_soldprice / itm2.sold_qty)
-								itm2.last_60_days_sold = avg_prvice ? Math.round(avg_prvice) : 0 // Grade values
-								itm2.last_60_days_qty_sold = itm2.sold_qty;
-								let form_factor_2 = itm2.form_factor.toLowerCase();
-								if (itm2.mobile_info && (form_factor_2 === 'phone' || form_factor_2 === 'tablet')) {
-									itm2.mobile_info = _.uniq(itm2.mobile_info.split(','));
-								}
-								let hdd = itm.hdd?.toLowerCase().toString();
-								let hdd_2 = itm2.hdd?.toLowerCase().toString();
-								let grade = itm2.grade?.toLowerCase().toString();
-								let model = itm.model?.toLowerCase().toString();
-								let model_2 = itm2.model?.toLowerCase().toString();
-								let info = itm2.mobile_info?.toString();
-								let info_2 = itm.mobile_info_2?.toString();
-								if (grade && model && model_2 && info && info_2 && hdd && hdd_2 && (hdd_2 === hdd) && model?.toLowerCase().includes(model_2) && info?.toLowerCase().includes(info_2.toLowerCase())) {
-									let fetchSOldQtyMobileSQL = `select sum(quantity) tot_qty from public."Assets" where LOWER(form_factor) = '${itm.form_factor ? itm.form_factor.toLowerCase() : ''}' and LOWER(grade) = '${grade}' and UPPER(hdd) like '${itm.hdd}' and LOWER(model) like '${model}' and status in ('RESERVATION','SOLD') and date_nor::date >  CURRENT_DATE - INTERVAL '2 months'`
-
-									await database.raw(fetchSOldQtyMobileSQL)
-										.then(async (fetchSOldQtyMobileResponse) => {
-											//  console.log(fetchSOldQtyMobileSQL, "fetchSOldQtyMobileResponse.rows[0].tot_qty", fetchSOldQtyMobileResponse.rows[0].tot_qty)
-											const estimate_values_service_data = await estimate_values_service.readByQuery({
-												fields: ["id"],
-												filter: {
-													asset_type: {
-														_eq: 'MOBILE'
-													},
-													model: {
-														_icontains: model,
-													},
-													hdd: {
-														_icontains: hdd,
-													},
-													grade: {
-														_icontains: grade,
-													}
-												},
-											});
-											if (fetchSOldQtyMobileResponse.rows.length > 0 && fetchSOldQtyMobileResponse.rows[0].tot_qty) {
-												itm2.last_6months_grade = Math.round((Number(fetchSOldQtyMobileResponse.rows[0].tot_qty) / Number(itm.total_grade_sum)) * 100)
-												results.push(itm2)
-												if (estimate_values_service_data.length > 0) {
-													return await estimate_values_service.updateOne(estimate_values_service_data[0].id,
-														itm2
-													).then((response1) => {
-														// res.json(response);
-														console.log("update techvaluator", response1)
-													}).catch((error1) => {
-													});
-												} else {
-													return await estimate_values_service.createOne(
-														itm2
-													).then((response1) => {
-														// res.json(response);
-														console.log("create techvaluator 1111", response1)
-													}).catch((error1) => {
-													});
-												}
-
-											} else {
-												itm2.last_6months_grade = 0
-												results.push(itm2)
-												if (estimate_values_service_data.length > 0) {
-													return await estimate_values_service.updateOne(estimate_values_service_data[0].id,
-														itm2
-													).then((response1) => {
-														// res.json(response);
-														console.log("update techvaluator", response1)
-													}).catch((error1) => {
-													});
-												} else {
-													return await estimate_values_service.createOne(
-														itm2
-													).then((response1) => {
-														// res.json(response);
-														console.log("create techvaluator", response1)
-													}).catch((error1) => {
-													});
-												}
-											}
-										}).catch((err_mob) => {
-											console.log("error mobile ==> 1", err_mob)
-										});
-								}
-							}
-
-
-						}).catch((error1) => {
-							console.log("error ==> 1", error1)
-						});
-				}
-
-				res.send({
-					data: [...results],
-					status: 200
-				})
-
-			})
-			.catch((error) => {
-				res.send({
-					data: [],
-					status: 500
-				})
-			});
+		await UPDATEESTIMATEVALUEMOBILE(null, database, estimate_values_service, res)
 	});
-
-
-	//Estimated asset values
-	router.get("/estimateassetvalues_mobile_bkk", async (req, res) => {
-
-		// Estimate value A- Grade - COMPUTER TYPE
-		let mobileResponse2 = [];
-		let mobile6monthsresponse = [];
-		let sql4 = `SELECT 
-		UPPER(hdd) hdd,
-		UPPER(model) model,
-		UPPER(form_factor) form_factor,
-		string_agg(UPPER(hdd)::text, ',') as "mobile_info",
-		SUM(quantity) AS total_grade_sum from
-		public."Assets" where grade is not null 
-		and UPPER(asset_type) in ('MOBILE','MOBILE DEVICE','MOBILE DEVICES') 
-		and UPPER(grade) in ('A','B','C') 
-		and LOWER(form_factor) in ('phone','tablet') 
-		and date_created::date >  CURRENT_DATE - INTERVAL '2 months'
-	GROUP BY UPPER(model),UPPER(form_factor),UPPER(hdd)`
-		await database.raw(sql4)
-			.then(async (mobileRes2) => {
-				mobileResponse2 = mobileRes2.rows;
-				if (mobileResponse2?.length > 0) {
-					// last 2 months total sold gradeand and UPPER(hdd) like '${itm.hdd}' and LOWER(model) like '${model}' UPPER(hdd) like '${itm.hdd}' and LOWER(model) like '${model}'and UPPER(hdd) like '${itm.hdd}' and LOWER(model) like '${model}'ER(hdd) like '${itm.hdd}' and LOWER(model) like '${model}'
-					let sql5 = `select UPPER(model) model,UPPER(hdd) hdd,UPPER(manufacturer) manufacturer,UPPER(form_factor) form_factor,string_agg(UPPER(hdd)::text, ',') as "mobile_info",UPPER(grade) grade,sum(quantity) sold_qty,sum(sold_price) as tot_soldprice 
-					from public."Assets" 
-					where UPPER(asset_type) in ('MOBILE','MOBILE DEVICE','MOBILE DEVICES') 
-					and UPPER(grade)  in ('A','B','C') 
-					and LOWER(form_factor) in ('phone','tablet') 
-					and (date_nor is not null) 
-					and date_nor::date >  CURRENT_DATE - INTERVAL '2 months' 
-					and UPPER(hdd) like '${itm.hdd}' and LOWER(model) like '${model}'
-					group by UPPER(model),UPPER(form_factor),UPPER(manufacturer),UPPER(hdd),UPPER(grade) order by UPPER(grade)`
-					// let sql2 = `select grade,100.0 * quantity / SUM(quantity) OVER (PARTITION BY grade) AS percent from public."Assets" where UPPER(model)='ELITEBOOK 830 G6' and UPPER(processor)='I5-8265U' and UPPER(asset_type) in ('COMPUTER') and UPPER(grade) in ('A','B','C') and LOWER(form_factor) in ('desktop','laptop') and date_created::date >  CURRENT_DATE - INTERVAL '6 months' group by grade`
-					await database.raw(sql5)
-						.then(async (mobileres) => {
-							mobile6monthsresponse = mobileres.rows;
-							for (const itm of mobileResponse2) {
-								let form_factor = itm.form_factor.toLowerCase();
-								if (itm.mobile_info && (form_factor === 'phone' || form_factor === 'tablet')) {
-									itm.mobile_info = _.uniq(itm.mobile_info.split(','));
-								}
-								let avg_prvice = (itm.tot_soldprice / itm.sold_qty)
-								itm.last_60_days_sold = avg_prvice ? Math.round(avg_prvice) : 0 // Grade values
-								itm.last_60_days_qty_sold = itm.sold_qty;
-								for (const itm2 of mobile6monthsresponse) {
-									let form_factor_2 = itm2.form_factor.toLowerCase();
-									if (itm2.mobile_info && (form_factor_2 === 'phone' || form_factor_2 === 'tablet')) {
-										itm2.mobile_info_2 = _.uniq(itm2.mobile_info.split(','));
-									}
-									let hdd = itm.hdd?.toLowerCase().toString();
-									let hdd_2 = itm2.hdd?.toLowerCase().toString();
-									let grade = itm.grade?.toLowerCase().toString();
-									let model = itm.model?.toLowerCase().toString();
-									let model_2 = itm2.model?.toLowerCase().toString();
-									let info = itm.mobile_info?.toString();
-									let info_2 = itm2.mobile_info_2?.toString();
-									if (grade && model && model_2 && info && info_2 && hdd && hdd_2 && (hdd_2 === hdd) && model?.toLowerCase().includes(model_2) && info?.toLowerCase().includes(info_2.toLowerCase())) {
-										let fetchSOldQtyMobileSQL = `select sum(quantity) tot_qty from public."Assets" where LOWER(form_factor) = '${itm.form_factor ? itm.form_factor.toLowerCase() : ''}' and UPPER(manufacturer) like '${itm.manufacturer}' and LOWER(grade) = '${grade}' and UPPER(hdd) like '${itm.hdd}' and LOWER(model) like '${model}' and status in ('RESERVATION') and date_created::date >  CURRENT_DATE - INTERVAL '2 months'`
-										await database.raw(fetchSOldQtyMobileSQL)
-											.then(async (fetchSOldQtyMobileResponse) => {
-												if (fetchSOldQtyMobileResponse.rows.length > 0 && fetchSOldQtyMobileResponse.rows[0].tot_qty) {
-													itm.last_6months_grade = Math.round((Number(fetchSOldQtyMobileResponse.rows[0].tot_qty) / Number(itm2.total_grade_sum)) * 100)
-												}
-											}).catch((err_mob) => {
-												console.log("error mobile ==> 1", err_mob)
-											});
-									}
-								}
-							}
-							res.send({
-								data: [...mobileResponse2],
-								status: 200
-							})
-						}).catch((error1) => {
-							console.log("error ==> 1", error1)
-						});
-
-				}
-
-			})
-			.catch((error) => {
-				res.send({
-					data: [],
-					status: 500
-				})
-			});
+	router.get("/estimateassetvalues_computer", async (req, res) => {
+		let result = await UPDATEESTIMATEVALUECOMPUTER(null, database, estimate_values_service, res).then((value) => {
+			console.log("Returned:", value); // Output: Returned: Data received!
+		  });
+		// res.send({
+		// 	data: [result],
+		// 	status: 200
+		// })
 	});
 
 	//Fetch duplicate serial number

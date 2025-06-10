@@ -1167,6 +1167,10 @@ const mailbox = {
         }
     },
     UPDATEESTIMATEVALUECOMPUTER: async (field, database, estimate_values_service) => {
+        let cond = ''
+        if (field) {
+            cond = `and UPPER(processor) like '${field.processor}' and UPPER(model) like '${field.model}'`
+        }
         let computerResponse = [];
         let results = [];
         let computerResponse1 = [];
@@ -1181,8 +1185,7 @@ const mailbox = {
 		and UPPER(grade) in ('A','B','C') 
 		and LOWER(form_factor) in ('desktop','laptop') 
 		and date_nor::date >=  CURRENT_DATE - INTERVAL '2 months'
-        and UPPER(processor) like '${field.processor}'
-        and UPPER(model) like '${field.model}'
+        and status in ('RESERVATION','SOLD')
 		GROUP BY UPPER(model),UPPER(processor),UPPER(form_factor)`;
         await database.raw(sql4)
             .then(async (CompuRes) => {
@@ -1202,6 +1205,7 @@ const mailbox = {
 				and (date_nor is not null) and date_nor::date >  CURRENT_DATE - INTERVAL '2 months'
 				and LOWER(processor) = '${itm.processor ? itm.processor.toLowerCase() : ''}'
 				and LOWER(model) = '${itm.model ? itm.model.toLowerCase() : ''}'
+                and status in ('RESERVATION','SOLD')
 				group by UPPER(model),UPPER(form_factor),UPPER(manufacturer),UPPER(processor),UPPER(grade) order by UPPER(grade)`
                     await database.raw(sql2)
                         .then(async (CompuRes1) => {
@@ -1317,12 +1321,19 @@ const mailbox = {
                             console.log("error ==> 1", error1)
                         });
                 }
+                if (!cond) {
+                   return true
+                }
             })
             .catch((error) => {
 
             });
     },
-    UPDATEESTIMATEVALUEMOBILE: async (field, database, estimate_values_service) => {
+    UPDATEESTIMATEVALUEMOBILE: async (field, database, estimate_values_service, res) => {
+        let cond = ''
+        if (field) {
+            cond = `and LOWER(hdd) = '${field.hdd ? field.hdd.toLowerCase() : ''}' and LOWER(model) = '${field.model ? field.model.toLowerCase() : ''}'`
+        }
         let computerResponse = [];
         let results = [];
         let computerResponse1 = [];
@@ -1336,10 +1347,10 @@ const mailbox = {
 		and UPPER(asset_type) in ('MOBILE','MOBILE DEVICE','MOBILE DEVICES') 
 		and UPPER(grade) in ('A','B','C') 
 		and LOWER(form_factor) in ('phone','tablet')
-        and LOWER(hdd) = '${field.hdd ? field.hdd.toLowerCase() : ''}'
-        and LOWER(model) = '${field.model ? field.model.toLowerCase() : ''}'
+        and status in ('RESERVATION','SOLD')
 		and date_nor::date >  CURRENT_DATE - INTERVAL '2 months'
-	GROUP BY UPPER(model),UPPER(form_factor),UPPER(hdd)`
+        ${cond}
+	    GROUP BY UPPER(model),UPPER(form_factor),UPPER(hdd)`
         // console.log("sql1", sql4)
         // and UPPER(model) like 'IPHONE 14 PRO BLACK'
 
@@ -1465,7 +1476,12 @@ const mailbox = {
                             console.log("error ==> 1", error1)
                         });
                 }
-
+                if (!cond) {
+                    res.send({
+                        data: [...results],
+                        status: 200
+                    })
+                }
             })
             .catch((error) => {
                 console.log("error ==> 1", error1)

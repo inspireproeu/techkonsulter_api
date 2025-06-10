@@ -66,7 +66,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 	const estimate_values_service = new ItemsService('estimate_values_computer', {
 		schema
 	});
-	
+
 	const ServiceUnavailableException = app.exceptions.ServiceUnavailableException;
 	const _ = require('lodash');
 
@@ -152,8 +152,14 @@ module.exports = async function registerHook({ filter, action }, app) {
 				if (input.asset_type) {
 					input.asset_type = input.asset_type.toString().toUpperCase()
 				}
+				if (input.manufacturer && input.manufacturer.toUpperCase() === "HEWLETT-PACKARD") {
+					input.manufacturer = "HP";
+				}
 				if (input.manufacturer) {
 					input.manufacturer = input.manufacturer.toString()
+					if (input.manufacturer && input.manufacturer.toUpperCase().includes('DELL')) {
+						input.manufacturer = 'DELL'
+					}
 				}
 				if (input.model) {
 					input.model = input.model.toString()
@@ -166,10 +172,6 @@ module.exports = async function registerHook({ filter, action }, app) {
 				}
 				if (input.sold_price) {
 					input.sold_price = Math.round(input.sold_price)
-				}
-
-				if (input.manufacturer && input.manufacturer.toUpperCase() === "HEWLETT-PACKARD") {
-					input.manufacturer = "HP";
 				}
 				if (input.complaint) {
 					let complaint = input.complaint.toLowerCase()
@@ -506,8 +508,14 @@ module.exports = async function registerHook({ filter, action }, app) {
 			if (input.asset_type) {
 				input.asset_type = input.asset_type.toString().toUpperCase()
 			}
+			if (input.manufacturer && input.manufacturer.toUpperCase() === "HEWLETT-PACKARD") {
+				input.manufacturer = "HP";
+			}
 			if (input.manufacturer) {
-				input.manufacturer = input.manufacturer.toString()
+				input.manufacturer = input.manufacturer.toString();
+				if (input.manufacturer && input.manufacturer.toUpperCase().includes('DELL')) {
+					input.manufacturer = 'DELL'
+				}
 			}
 			if (input.model) {
 				input.model = input.model.toString()
@@ -865,7 +873,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 			});
 			if (assetResult?.length > 0 && assetResult[0].asset_type === 'COMPUTER') {
 				await UPDATEESTIMATEVALUECOMPUTER(assetResult[0], database, estimate_values_service)
-			}if (assetResult?.length > 0 && assetResult[0].asset_type.includes('MOBILE')) {
+			} if (assetResult?.length > 0 && assetResult[0].asset_type.includes('MOBILE')) {
 				await UPDATEESTIMATEVALUEMOBILE(assetResult[0], database, estimate_values_service)
 			}
 		};
