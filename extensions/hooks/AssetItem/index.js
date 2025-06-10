@@ -1531,8 +1531,8 @@ module.exports = async function registerHook({ filter, action }, app) {
 				}
 				if (action === 'processed_finished') {
 					mail_status = 3;
-					subject = `Processed finished in Itreon project - ${project_id}`
-					body = `<table style="font-size: 16px;width:100%"><tr><td><div><span>Hi,</span><br/><br/>We have now processed all equipment in project <strong>${project_id}</strong> for client <strong>${client_name}</strong>. Attached to this email is the product report for the equipment.</div></td></tr><tr><td>Let us know if you have any other questions.</td></tr></table>`;
+					subject = `Processing finished in Itreon project - ${project_id}`
+					body = `<table style="font-size: 16px;width:100%"><tr><td><div><span>Hi,</span><br/><br/>We have now processed all equipment in project <strong>${project_id}</strong> for client <strong>${client_name}</strong>.<br/>You can now access our system to access your product report.</div></td></tr><tr><td>Let us know if you have any other questions.</td></tr></table>`;
 					html = `${body}`
 					content = `${html}`
 
