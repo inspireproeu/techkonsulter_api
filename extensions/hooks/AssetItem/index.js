@@ -863,19 +863,19 @@ module.exports = async function registerHook({ filter, action }, app) {
 			// 	});
 
 			//Update techvaluator page by computer
-			const assetResult = await assetsService.readByQuery({
-				fields: ["processor", "asset_type", "hdd", "model"],
-				filter: {
-					asset_id: {
-						_eq: data.asset_id
-					}
-				},
-			});
-			if (assetResult?.length > 0 && assetResult[0].asset_type === 'COMPUTER') {
-				await UPDATEESTIMATEVALUECOMPUTER(assetResult[0], database, estimate_values_service)
-			} if (assetResult?.length > 0 && assetResult[0].asset_type.includes('MOBILE')) {
-				await UPDATEESTIMATEVALUEMOBILE(assetResult[0], database, estimate_values_service)
-			}
+			// const assetResult = await assetsService.readByQuery({
+			// 	fields: ["processor", "asset_type", "hdd", "model"],
+			// 	filter: {
+			// 		asset_id: {
+			// 			_eq: data.asset_id
+			// 		}
+			// 	},
+			// });
+			// if (assetResult?.length > 0 && assetResult[0].asset_type === 'COMPUTER') {
+			// 	await UPDATEESTIMATEVALUECOMPUTER(assetResult[0], database, estimate_values_service)
+			// } if (assetResult?.length > 0 && assetResult[0].asset_type.includes('MOBILE')) {
+			// 	await UPDATEESTIMATEVALUEMOBILE(assetResult[0], database, estimate_values_service)
+			// }
 		};
 		if (input.collection === 'project' && data.id) {
 			if (data.project_status !== 'CLOSED' || data.project_type === 'PURCHASE') {
