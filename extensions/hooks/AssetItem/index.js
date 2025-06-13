@@ -353,7 +353,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 				input.quantity = input.quantity ? input.quantity : 1;
 				// security update here
 				// IF a computer or phone have data_destruction = “Erasure in progress” or data_destruction = “Not Erased”
-				if (input.data_destruction) {
+				if (input.data_destruction && !input.asset_id_nl) {
 					let dataDestruction = input.data_destruction.toLowerCase();
 					if (
 						dataDestruction === "erasure in progress"
@@ -711,14 +711,14 @@ module.exports = async function registerHook({ filter, action }, app) {
 			if (input.platform === 'MOBILE_UPDATE' || input.platform === 'MOBILE_UPDATE_CERTUS') {
 				if (input.complaint && (input.complaint.toLowerCase().includes("touchscreen;min"))) {
 					input.screen = 'Touchscreen min';
-					input.complaint = input.complaint.replace(',Touchscreen;min', "").trim();
-					input.complaint = input.complaint.replace('Touchscreen;min', "").trim();
+					input.complaint = input.complaint.toLowerCase().replace(',touchscreen;min', "").trim();
+					input.complaint = input.complaint.toLowerCase().replace('touchscreen;min', "").trim();
 				}
 				await UPDATECOMPLIANTS(input, complaintsservice, database)
 			}
 			// security update here
 			// IF a computer or phone have data_destruction = “Erasure in progress” or data_destruction = “Not Erased”
-			if (input.data_destruction) {
+			if (input.data_destruction && !input.asset_id_nl) {
 				let dataDestruction = input.data_destruction.toLowerCase();
 				if (
 					dataDestruction === "erasure in progress"
@@ -732,7 +732,6 @@ module.exports = async function registerHook({ filter, action }, app) {
 					input.status = 'NOT ERASED';
 				}
 			}
-
 			// update grade DV or EV should automatically be added as ONHOLD.
 			const revisionsData = await revisions_service.readByQuery({
 				fields: ["item", "data"],
@@ -1512,27 +1511,27 @@ module.exports = async function registerHook({ filter, action }, app) {
 					mail_status = 0;
 					subject = `New Itreon project created - ${project_id}`
 					body = `<span>Hi,</span><br/<br/>We have created a new project with id - <strong>${project_id}</strong>.`
-					html = `<table style="font-size: 16px;width:100%"><tr>${body}<br/></tr>${client_name ? '<tr><td style="font-weight: 500;">Client name: <span ><strong>' + client_name + '</strong></span></td></tr>' : ''}${project_name ? '<tr><td style="font-weight: 500;">Project name: <span ><strong>' + project_name + '</strong></span></td></tr>' : ''}<tr><td><tr><td>Additional information can be found in the PDF attached to this email.</td></tr><tr><td>Please already now check assets for locks and provide Itreon with any needed BIOS password. Note that unlocked assets are processed cheaper and quicker than assets that need to be unlocked and reprocessed.</td></tr><tr><td>If something is incorrect or if you have any other questions please contact us immediately.</td></tr></table >`
+					html = `<table style="font-size: 14px;width:100%"><tr>${body}<br/></tr>${client_name ? '<tr><td style="font-weight: 500;">Client name: <span ><strong>' + client_name + '</strong></span></td></tr>' : ''}${project_name ? '<tr><td style="font-weight: 500;">Project name: <span ><strong>' + project_name + '</strong></span></td></tr>' : ''}<tr><td><tr><td>Additional information can be found in the PDF attached to this email.</td></tr><tr><td>Please already now check assets for locks and provide Itreon with any needed BIOS password. Note that unlocked assets are processed cheaper and quicker than assets that need to be unlocked and reprocessed.</td></tr><tr><td>If something is incorrect or if you have any other questions please contact us immediately.</td></tr></table >`
 					content = `${html}`
 				}
 				if (action === 'process_started') {
 					mail_status = 1;
 					subject = `Processing of equipment in Itreon project ${project_id} has been initiated`
-					body = `<table style="font-size: 16px;width:100%"><tr><td><div><span>Hi,</span><br/<br/>We want to inform you that the processing of your equipment in project <strong>${project_id}</strong> for client <strong>${client_name}</strong>  has been initiated. There is nothing you need to do. We will keep you updated and informed along the way. </div></td></tr><tr><td>Please do not hesitate to contact us in case you have any questions.</td></tr></table>`;
+					body = `<table style="font-size: 14px;width:100%"><tr><td><div><span>Hi,</span><br/<br/>We want to inform you that the processing of your equipment in project <strong>${project_id}</strong> for client <strong>${client_name}</strong>  has been initiated. There is nothing you need to do. We will keep you updated and informed along the way. </div></td></tr><tr><td>Please do not hesitate to contact us in case you have any questions.</td></tr></table>`;
 					html = `${body}`
 					content = `${html}`
 				}
 				if (action === 'sold') {
 					mail_status = 2;
 					subject = `Selling of equipment in Itreon project ${project_id} has begun`
-					body = `<table style="font-size: 16px;width:100%"><tr><td><div ><span>Hi,</span><br/><br/>We are happy to inform you that the selling of the equipment in project <strong>${project_id}</strong> for client <strong>${client_name}</strong> has begun. We will contact you again once we are done.</div></td></tr><tr><td>Please do not hesitate to contact us in case you have any other questions.</td></tr></table>`;
+					body = `<table style="font-size: 14px;width:100%"><tr><td><div ><span>Hi,</span><br/><br/>We are happy to inform you that the selling of the equipment in project <strong>${project_id}</strong> for client <strong>${client_name}</strong> has begun. We will contact you again once we are done.</div></td></tr><tr><td>Please do not hesitate to contact us in case you have any other questions.</td></tr></table>`;
 					html = `${body}`
 					content = `${html}`
 				}
 				if (action === 'processed_finished') {
 					mail_status = 3;
 					subject = `Processing finished in Itreon project - ${project_id}`
-					body = `<table style="font-size: 16px;width:100%"><tr><td><div><span>Hi,</span><br/><br/>We have now processed all equipment in project <strong>${project_id}</strong> for client <strong>${client_name}</strong>.<br/>You can now access our system to access your product report.</div></td></tr><tr><td>Let us know if you have any other questions.</td></tr></table>`;
+					body = `<table style="font-size: 14px;width:100%"><tr><td><div><span>Hi,</span><br/><br/>We have now processed all equipment in project <strong>${project_id}</strong> for client <strong>${client_name}</strong>.<br/><br/>You can now access our system to access your product report.</div></td></tr><tr><td><br/>Let us know if you have any other questions.</td></tr></table>`;
 					html = `${body}`
 					content = `${html}`
 
