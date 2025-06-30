@@ -13,7 +13,7 @@ module.exports = {
     CORS_ENABLED: true,
     PASSWORD_RESET_URL_ALLOW_LIST:
         'array:http://localhost:3000/setpassword',
-    CORS_ORIGIN: 'array:http://0.0.0.0:8073/,https://www.techauction.se,https://production.techkonsult.se,http://localhost:8000,https://productionv2.inspirepro.eu,https://productionv2.inspirepro.eu/Assets,https://production.itreon.se,https://production.itreon.se/user/login,https://market.itreon.eu',
+    CORS_ORIGIN: 'array:http://0.0.0.0:8073/,https://www.techauction.se,https://production.techkonsult.se,http://localhost:8000,https://productionv2.inspirepro.eu,https://productionv2.inspirepro.eu/Assets,https://production.itreon.se,https://production.itreon.se/user/login,https://market.itreon.eu,https://takeback.itreon.eu',
     CORS_METHODS: 'GET,POST,PATCH,DELETE,OPTIONS',
     CORS_ALLOWED_HEADERS: 'Content-Type,Authorization,X-Requested-With',
     CORS_EXPOSED_HEADERS: 'Content-Range',
