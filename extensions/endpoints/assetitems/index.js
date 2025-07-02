@@ -1,5 +1,6 @@
 const { UPDATEPROJECTFINANCE, NERDFIXBULKUPDATE, CREATENERDFIXHISTORY, UPDATEESTIMATEVALUEMOBILE, UPDATEESTIMATEVALUECOMPUTER } = require('../../Functions');
 const { ASSIGNSTOCKLISTVALUES, removeComplainData, removeComplainData_A_Grade, removeprocessorData, removeModelData } = require('../../Functions/mapvalues');
+const { utils: XLSXUtils, write } = require('xlsx');
 
 module.exports = async function registerEndpoint(router, app) {
 	let _ = require('underscore')
@@ -320,10 +321,26 @@ module.exports = async function registerEndpoint(router, app) {
 			.then(async (response) => {
 				let result = response.rows;
 				result = await ASSIGNSTOCKLISTVALUES(result, null, 'computer');
-				res.send({
-					data: result,
-					status: 200
-				})
+				const worksheet = XLSXUtils.json_to_sheet(result);
+				const workbook = XLSXUtils.book_new();
+				XLSXUtils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+				// Create buffer
+				const buffer = write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+				// Set headers
+				res.setHeader('Content-Disposition', 'attachment; filename="data.xlsx"');
+				res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+				// Send file
+				if(req.query.download){
+					res.send(buffer);
+				}	else {
+					res.send({
+						data: result,
+						status: 200
+					})
+				}
 			})
 			.catch((error) => {
 				res.send({
