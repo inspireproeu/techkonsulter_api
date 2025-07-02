@@ -1,6 +1,6 @@
 const { UPDATEPROJECTFINANCE, NERDFIXBULKUPDATE, CREATENERDFIXHISTORY, UPDATEESTIMATEVALUEMOBILE, UPDATEESTIMATEVALUECOMPUTER } = require('../../Functions');
 const { ASSIGNSTOCKLISTVALUES, removeComplainData, removeComplainData_A_Grade, removeprocessorData, removeModelData } = require('../../Functions/mapvalues');
-const { utils: XLSXUtils, write } = require('xlsx');
+// const { utils: XLSXUtils, write } = require('xlsx');
 
 module.exports = async function registerEndpoint(router, app) {
 	let _ = require('underscore')
@@ -321,26 +321,30 @@ module.exports = async function registerEndpoint(router, app) {
 			.then(async (response) => {
 				let result = response.rows;
 				result = await ASSIGNSTOCKLISTVALUES(result, null, 'computer');
-				const worksheet = XLSXUtils.json_to_sheet(result);
-				const workbook = XLSXUtils.book_new();
-				XLSXUtils.book_append_sheet(workbook, worksheet, 'Sheet1');
+				// const worksheet = XLSXUtils.json_to_sheet(result);
+				// const workbook = XLSXUtils.book_new();
+				// XLSXUtils.book_append_sheet(workbook, worksheet, 'Sheet1');
 
-				// Create buffer
-				const buffer = write(workbook, { type: 'buffer', bookType: 'xlsx' });
+				// // Create buffer
+				// const buffer = write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
-				// Set headers
-				res.setHeader('Content-Disposition', 'attachment; filename="data.xlsx"');
-				res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+				// // Set headers
+				// res.setHeader('Content-Disposition', 'attachment; filename="data.xlsx"');
+				// res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
-				// Send file
-				if(req.query.download){
-					res.send(buffer);
-				}	else {
-					res.send({
-						data: result,
-						status: 200
-					})
-				}
+				// // Send file
+				// if(req.query.download){
+				// 	res.send(buffer);
+				// }else {
+				// 	res.send({
+				// 		data: result,
+				// 		status: 200
+				// 	})
+				// }
+				res.send({
+					data: result,
+					status: 200
+				})
 			})
 			.catch((error) => {
 				res.send({
@@ -1110,8 +1114,8 @@ module.exports = async function registerEndpoint(router, app) {
 		await UPDATEESTIMATEVALUEMOBILE(null, database, estimate_values_service, res)
 	});
 	router.get("/estimateassetvalues_computer", async (req, res) => {
-		let sql1 = `delete from estimate_values_computer`
-		await database.raw(sql1)
+		// let sql1 = `delete from estimate_values_computer`
+		// await database.raw(sql1)
 
 		let result = await UPDATEESTIMATEVALUECOMPUTER(null, database, estimate_values_service, res).then((value) => {
 			console.log("Returned:", value); // Output: Returned: Data received!
