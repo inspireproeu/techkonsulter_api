@@ -361,7 +361,11 @@ module.exports = async function registerEndpoint(router, app) {
 				result = await ASSIGNSTOCKLISTVALUES(result, null, 'computer');
 				// Send file
 				if(req.query.download){
-					const filename = 'sample.xlsx';
+					let name = ''
+					if(req.query.type==='general'){
+
+					}
+					const filename = `${req.query.type} - ${req.query.warehouse} - stocklist.xlsx`;
 					const filePath = await createExcelFile(result, filename);
 
 					const directusURL = 'https://productionapi.techkonsult.se';
