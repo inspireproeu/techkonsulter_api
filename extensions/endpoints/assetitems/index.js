@@ -1,6 +1,10 @@
 const { UPDATEPROJECTFINANCE, NERDFIXBULKUPDATE, CREATENERDFIXHISTORY, UPDATEESTIMATEVALUEMOBILE, UPDATEESTIMATEVALUECOMPUTER } = require('../../Functions');
 const { ASSIGNSTOCKLISTVALUES, removeComplainData, removeComplainData_A_Grade, removeprocessorData, removeModelData } = require('../../Functions/mapvalues');
-// const { utils: XLSXUtils, write } = require('xlsx');
+const ExcelJS = require('exceljs');
+const fs = require('fs');
+const path = require('path');
+const axios = require('axios');
+const FormData = require('form-data');
 
 module.exports = async function registerEndpoint(router, app) {
 	let _ = require('underscore')
@@ -309,6 +313,40 @@ module.exports = async function registerEndpoint(router, app) {
 			});
 	});
 
+	async function createExcelFile(data, filename) {
+		const workbook = new ExcelJS.Workbook();
+		const worksheet = workbook.addWorksheet('Data');
+
+		// Add header row (keys of first object)
+		worksheet.columns = Object.keys(data[0]).map(key => ({
+			header: key,
+			key: key,
+			width: 20
+		}));
+
+		// Add rows
+		worksheet.addRows(data);
+
+		const filePath = path.join(__dirname, filename);
+		await workbook.xlsx.writeFile(filePath);
+
+		return filePath;
+	}
+
+	async function uploadFileToDirectus(filePath, directusURL, token) {
+		const form = new FormData();
+		form.append('file', fs.createReadStream(filePath));
+
+		const response = await axios.post(`${directusURL}/files`, form, {
+			headers: {
+			...form.getHeaders(),
+			Authorization: `Bearer ${token}`
+			}
+		});
+
+		return response.data;
+	}
+
 	//computer stocklist
 	router.get("/exportassetscomputer", async (req, res) => {
 		let warehouse = req.query.warehouse;
@@ -321,30 +359,34 @@ module.exports = async function registerEndpoint(router, app) {
 			.then(async (response) => {
 				let result = response.rows;
 				result = await ASSIGNSTOCKLISTVALUES(result, null, 'computer');
-				// const worksheet = XLSXUtils.json_to_sheet(result);
-				// const workbook = XLSXUtils.book_new();
-				// XLSXUtils.book_append_sheet(workbook, worksheet, 'Sheet1');
+				// Send file
+				if(req.query.download){
+					const filename = 'sample.xlsx';
+					const filePath = await createExcelFile(result, filename);
 
-				// // Create buffer
-				// const buffer = write(workbook, { type: 'buffer', bookType: 'xlsx' });
+					const directusURL = 'https://productionapi.techkonsult.se';
+					const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVhYmE1YjdlLTg0Y2MtNGVjZS04OTBjLWM4N2JkMDMxZjJhOCIsInJvbGUiOiI1YzJiM2QxNS01YmJmLTQ5MzMtOTMyNC1kYTNhN2MwNDYyNjciLCJhcHBfYWNjZXNzIjp0cnVlLCJhZG1pbl9hY2Nlc3MiOnRydWUsImlhdCI6MTc1MTUwNjAzMiwiZXhwIjoxODM3ODE5NjMyLCJpc3MiOiJkaXJlY3R1cyJ9.FaFLc8NnR6KIh-VgDH_QP6H4HnmEDxvAbY3mp-doSDQ';
 
-				// // Set headers
-				// res.setHeader('Content-Disposition', 'attachment; filename="data.xlsx"');
-				// res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-
-				// // Send file
-				// if(req.query.download){
-				// 	res.send(buffer);
-				// }else {
-				// 	res.send({
-				// 		data: result,
-				// 		status: 200
-				// 	})
-				// }
-				res.send({
-					data: result,
-					status: 200
-				})
+					try {
+						const uploadResult = await uploadFileToDirectus(filePath, directusURL, token);
+						console.log('Upload successful:', uploadResult);
+						res.send({
+							data: uploadResult,
+							status: 200
+						})
+					} catch (err) {
+						res.send({
+							data: [],
+							status: 500
+						})
+						console.error('Upload failed:', err.response?.data || err.message);
+					}
+				}else {
+					res.send({
+						data: result,
+						status: 200
+					})
+				}
 			})
 			.catch((error) => {
 				res.send({
