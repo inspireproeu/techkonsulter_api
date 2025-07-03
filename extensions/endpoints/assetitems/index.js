@@ -1191,9 +1191,10 @@ module.exports = async function registerEndpoint(router, app) {
 	router.get("/estimateassetvalues_mobile", async (req, res) => {
 		await UPDATEESTIMATEVALUEMOBILE(null, database, estimate_values_service, res)
 	});
+	
 	router.get("/estimateassetvalues_computer", async (req, res) => {
-		// let sql1 = `delete from estimate_values_computer`
-		// await database.raw(sql1)
+		let sql1 = `delete from estimate_values_computer`
+		await database.raw(sql1)
 
 		let result = await UPDATEESTIMATEVALUECOMPUTER(null, database, estimate_values_service, res).then((value) => {
 			console.log("Returned:", value); // Output: Returned: Data received!
