@@ -5,6 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const FormData = require('form-data');
+const APIURL = 'https://productionapi.techkonsult.se';
+const access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVhYmE1YjdlLTg0Y2MtNGVjZS04OTBjLWM4N2JkMDMxZjJhOCIsInJvbGUiOiI1YzJiM2QxNS01YmJmLTQ5MzMtOTMyNC1kYTNhN2MwNDYyNjciLCJhcHBfYWNjZXNzIjp0cnVlLCJhZG1pbl9hY2Nlc3MiOnRydWUsImlhdCI6MTc1MTUwNjAzMiwiZXhwIjoxODM3ODE5NjMyLCJpc3MiOiJkaXJlY3R1cyJ9.FaFLc8NnR6KIh-VgDH_QP6H4HnmEDxvAbY3mp-doSDQ';
 
 module.exports = async function registerEndpoint(router, app) {
 	let _ = require('underscore')
@@ -300,10 +302,30 @@ module.exports = async function registerEndpoint(router, app) {
 			.then(async (response) => {
 				let result = response.rows;
 				result = await ASSIGNSTOCKLISTVALUES(result, 'general');
-				res.send({
-					data: result,
-					status: 200
-				})
+					if(req.query.download){
+						const filename = `${req.query.type}-${req.query.warehouse}-stocklist.xlsx`;
+						const filePath = await createExcelFile(result, filename);
+						try {
+							const uploadResult = await uploadFileToDirectus(filePath, APIURL);
+							res.send({
+								data: uploadResult,
+								status: 200
+							})
+						} catch (err) {
+							res.send({
+								data: [],
+								status: 500
+							})
+							console.error('Upload failed:', err.response?.data || err.message);
+						}
+					}else {
+						res.send({
+							data: result,
+							status: 200
+						})
+					}
+
+			
 			})
 			.catch((error) => {
 				res.send({
@@ -333,14 +355,14 @@ module.exports = async function registerEndpoint(router, app) {
 		return filePath;
 	}
 
-	async function uploadFileToDirectus(filePath, directusURL, token) {
+	async function uploadFileToDirectus(filePath, APIURL) {
 		const form = new FormData();
 		form.append('file', fs.createReadStream(filePath));
 
-		const response = await axios.post(`${directusURL}/files`, form, {
+		const response = await axios.post(`${APIURL}/files`, form, {
 			headers: {
-			...form.getHeaders(),
-			Authorization: `Bearer ${token}`
+				...form.getHeaders(),
+				Authorization: `Bearer ${access_token}`
 			}
 		});
 
@@ -360,20 +382,11 @@ module.exports = async function registerEndpoint(router, app) {
 				let result = response.rows;
 				result = await ASSIGNSTOCKLISTVALUES(result, null, 'computer');
 				// Send file
-				if(req.query.download){
-					let name = ''
-					if(req.query.type==='general'){
-
-					}
-					const filename = `${req.query.type} - ${req.query.warehouse} - stocklist.xlsx`;
+				if(req.query.download) {
+					const filename = `${req.query.type}-${req.query.warehouse}-stocklist.xlsx`;
 					const filePath = await createExcelFile(result, filename);
-
-					const directusURL = 'https://productionapi.techkonsult.se';
-					const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVhYmE1YjdlLTg0Y2MtNGVjZS04OTBjLWM4N2JkMDMxZjJhOCIsInJvbGUiOiI1YzJiM2QxNS01YmJmLTQ5MzMtOTMyNC1kYTNhN2MwNDYyNjciLCJhcHBfYWNjZXNzIjp0cnVlLCJhZG1pbl9hY2Nlc3MiOnRydWUsImlhdCI6MTc1MTUwNjAzMiwiZXhwIjoxODM3ODE5NjMyLCJpc3MiOiJkaXJlY3R1cyJ9.FaFLc8NnR6KIh-VgDH_QP6H4HnmEDxvAbY3mp-doSDQ';
-
 					try {
-						const uploadResult = await uploadFileToDirectus(filePath, directusURL, token);
-						console.log('Upload successful:', uploadResult);
+						const uploadResult = await uploadFileToDirectus(filePath, APIURL);
 						res.send({
 							data: uploadResult,
 							status: 200
@@ -385,7 +398,7 @@ module.exports = async function registerEndpoint(router, app) {
 						})
 						console.error('Upload failed:', err.response?.data || err.message);
 					}
-				}else {
+				} else {
 					res.send({
 						data: result,
 						status: 200
@@ -460,11 +473,30 @@ module.exports = async function registerEndpoint(router, app) {
 								item.complaint = item?.complaint_from_app
 							}
 						})
+						if(req.query.download){
+							const filename = `${req.query.type}-${req.query.warehouse}-stocklist.xlsx`;
+							let data = [...result, ...result2]
+							const filePath = await createExcelFile(data, filename);
 
-						res.send({
-							data: [...result, ...result2],
-							status: 200
-						})
+							try {
+								const uploadResult = await uploadFileToDirectus(filePath, APIURL);
+								res.send({
+									data: uploadResult,
+									status: 200
+								})
+							} catch (err) {
+								res.send({
+									data: [],
+									status: 500
+								})
+								console.error('Upload failed:', err.response?.data || err.message);
+							}
+						}else {
+							res.send({
+								data: [...result, ...result2],
+								status: 200
+							})
+						}
 					})
 					.catch((error) => {
 						res.send({
