@@ -50,7 +50,7 @@ module.exports = async function registerHook(hooktypes, app) {
     })
     //-----------------------------------
 
-    cron.schedule('*/30 * * * *', async () => {
+    cron.schedule('*/59 * * * *', async () => {
         request(certusOptionsEq(0, 'eq'), async function (error, response1) {
             if (error) {
                 // res.status("500").send(error);
@@ -65,6 +65,15 @@ module.exports = async function registerHook(hooktypes, app) {
                 }
             }
         });
+    })
+
+    
+    cron.schedule('0 */3 * * *', async () => {
+        fetchRecordsComputer()
+    })
+
+    cron.schedule('0 */4 * * *', async () => {
+        fetchRecordsMobile()
     })
 
     // request(certusOptionsEq(0, 'eq'), async function (error, response1) {
@@ -82,8 +91,13 @@ module.exports = async function registerHook(hooktypes, app) {
     //     }
     // });
 
-    // let arr = [207169, 205989, 207137, 206372, 206357, 206364];
-    // arr.forEach((itm)=>{
+
+    // let arr1 = [241731,
+    //     241732,
+    //     241703,
+    //     246032];
+    // arr1.forEach((itm) => {
+    //     console.log("aaaaaaaaa", itm)
     //     request(certusOptionsEq(itm), async function (error, response1) {
     //         if (error) {
     //             // res.status("500").send(error);
@@ -94,7 +108,7 @@ module.exports = async function registerHook(hooktypes, app) {
     //             if (response1.body && JSON.parse(response1.body).length > 0) {
     //                 offset += JSON.parse(response1.body).length;
 
-    //                 await insertCertusData(response1.body)
+    //                 await insertCertusData(response1.body, 10000)
     //             }
     //         }
     //     });
@@ -133,6 +147,125 @@ module.exports = async function registerHook(hooktypes, app) {
             }
         });
     })
+
+    async function fetchRecordsComputer(){
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setDate(oneMonthAgo.getDate() - 40);
+        const isoDate = oneMonthAgo.toISOString();
+        const assetLists = await assetsService.readByQuery({
+            fields: ["asset_id","asset_type", "grade", "project_id","date_created"],
+            limit: -1,
+            filter: {
+                _and: [
+                    {
+                    date_created: {
+                        _gte: isoDate
+                    },
+                    },
+                    {
+                    _or: [
+                        { asset_type: { _null: true } },
+                        // { grade: { _null: true } },
+                    ]
+                    }
+                ]
+                },
+            sort: ['-date_created'],
+
+        });
+        if(assetLists?.length >0){
+            for (const obj of assetLists) {
+            //   console.log(obj.asset_id,"obj.asset_id",obj.date_created)
+                request(certusOptionsEq(obj.asset_id), async function (error, response1) {
+                    if (error) {
+                        // res.status("500").send(error);
+                        console.log("eroororr certus", error)
+                    } else {
+                        console.log("JSON.parse(response1.body).length", JSON.parse(response1.body).length)
+
+                        // await CRONJOBS(cronjobsservice, (response1.body), 'certusmobile')
+                        if (response1.body && JSON.parse(response1.body).length > 0) {
+                            offset += JSON.parse(response1.body).length;
+                            await insertCertusData(response1.body, 10000)
+                        }
+                    }
+                });
+            }
+        }
+    }
+    async function fetchRecordsMobile(){
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+        const isoDate = oneMonthAgo.toISOString();
+        const assetLists = await assetsService.readByQuery({
+            fields: ["asset_id","asset_type", "grade", "project_id"],
+            limit: -1,
+            filter: {
+                _and: [
+                  {
+                    date_created: {
+                      _gte: isoDate
+                    },
+                  },
+                  {
+                    _or: [
+                      { asset_type: { _null: true } },
+                    //   { grade: { _null: true } },
+                    ]
+                  }
+                ]
+              },
+            sort: ['-date_created'],
+
+        });
+        if(assetLists?.length >0){
+          for (const obj of assetLists) {
+            request(certusOptionsMobileEq(obj.asset_id), async function (error, response1) {
+              if (error) {
+                  // res.status("500").send(error);
+                  console.log("eroororr certus", error)
+              } else {
+                  console.log("JSON.parse(response1.body).length", JSON.parse(response1.body).length)
+  
+                  // await CRONJOBS(cronjobsservice, (response1.body), 'certusmobile')
+                  if (response1.body && JSON.parse(response1.body).length > 0) {
+                      offset += JSON.parse(response1.body).length;
+                      await insertMobileCertusData(response1.body, 10000)
+                  }
+              }
+          });
+          }
+        }
+    }
+    // let arr = [
+    //     241281,
+    //     241284,
+    //     241262,
+    //     241268,
+    //     241272,
+    //     241288,
+    //     241293,
+    //     241306,
+    //     241305,
+    //     241292
+    //     ];
+    // arr.forEach((itm) => {
+    //     request(certusOptionsMobileEq(itm), async function (error, response1) {
+    //         if (error) {
+    //             // res.status("500").send(error);
+    //             console.log("eroororr certus", error)
+    //         } else {
+    //             console.log("JSON.parse(response1.body).length", JSON.parse(response1.body).length)
+
+    //             // await CRONJOBS(cronjobsservice, (response1.body), 'certusmobile')
+    //             if (response1.body && JSON.parse(response1.body).length > 0) {
+    //                 offset += JSON.parse(response1.body).length;
+    //                 await insertMobileCertusData(response1.body, 10000)
+    //             }
+    //         }
+    //     });
+    // })
+
 
     const date = moment();
     let dateTo = date.format('YYYY-MM-DD');
@@ -414,46 +547,53 @@ module.exports = async function registerHook(hooktypes, app) {
         //                 "conditions": [{
         //                     "type": "text",
         //                     "operator": "eq",
-        //                     "value": "219114"
+        //                     "value": "${asset_id}"
         // let arr = [207169, 205989, 207137, 206372, 206357, 206364];
-
-        return {
-            method: "POST",
-            url: "https://cloud.certus.software/webservices/rest-api/v1/reports/ce",
-            headers: {
-                "Customer-Code": "220811",
-                Authorization: "Basic dG9yZC5oZW5yeXNvbjpJdG9ub215OEA=",
-                "Content-Type": "application/json",
-            },
-            body: `{
-                "reportMode": "ORIGINAL",
-                "groupData": "DRIVE",
-                "request": {
-                  "filter": {
-                    "criteria": [
-                    {
-                        "column": "cewm.ce.report.erasure.time.end",
-                            "conditions": [{
-                            "type": "date",
-                            "operator": "eq",
-                            "date": ${date}
-                            }]
-                        }
-                    ],
-                    "conjunction": "AND"
-                  },
-                  "sort": [{
-                    "column": "cewm.ce.report.erasure.time.end",
-                    "mode": "DESC"
-                  }],
-                  "limit": 1000,
-                  "offset": 0
+      let conditions = `{
+            "type": "date",
+            "operator": "eq",
+            "date": ${date}
+          }`
+      if(asset_id){
+        conditions = `{
+            "type": "text",
+            "operator": "eq",
+            "value": "${asset_id}"
+          }`
+      }
+      return {
+          method: "POST",
+          url: "https://cloud.certus.software/webservices/rest-api/v1/reports/ce",
+          headers: {
+              "Customer-Code": "220811",
+              Authorization: "Basic dG9yZC5oZW5yeXNvbjpJdG9ub215OEA=",
+              "Content-Type": "application/json",
+          },
+          body: `{
+              "reportMode": "ORIGINAL",
+              "groupData": "DRIVE",
+              "request": {
+                "filter": {
+                  "criteria": [
+                  {
+                    "column": "cewm.ce.report.document.custom.field5",
+                    "conditions": [${conditions}]
+                      }
+                  ],
+                  "conjunction": "AND"
                 },
-              "response": {
-                      "showColumns": ["cewm.ce.report.hardware.system.version","cewm.ce.report.hardware.system.family","cewm.ce.report.erasure.status.warning","cewm.ce.report.document.id", "cewm.ce.report.date", "cewm.ce.report.document.software.version", "cewm.ce.report.document.custom.field1", "cewm.ce.report.document.custom.field2", "cewm.ce.report.document.custom.field3", "cewm.ce.report.document.custom.field4", "cewm.ce.report.document.custom.field5", "cewm.ce.report.document.operator.name", "cewm.ce.report.document.operator.group.name", "cewm.ce.report.hardware.lot.name", "cewm.ce.report.hardware.system.manufacturer", "cewm.ce.report.hardware.system.serial.number", "cewm.ce.report.hardware.system.chassis.type", "cewm.ce.report.hardware.system.model", "cewm.ce.report.hardware.system.uuid", "cewm.ce.report.hardware.system.motherboard", "cewm.ce.report.hardware.system.bios", "cewm.ce.report.hardware.system.processor", "cewm.ce.report.hardware.system.device", "cewm.ce.report.hardware.system.memory", "cewm.ce.report.hardware.system.graphic.card", "cewm.ce.report.hardware.system.sound.card", "cewm.ce.report.hardware.system.network.adapter", "cewm.ce.report.hardware.system.optical.drive", "cewm.ce.report.hardware.system.storage.controller", "cewm.ce.report.hardware.system.peripheral.ports", "cewm.ce.report.hardware.system.battery", "cewm.ce.report.erasure.lot.name", "cewm.ce.report.erasure.device.vendor", "cewm.ce.report.erasure.device.model", "cewm.ce.report.erasure.device.type", "cewm.ce.report.erasure.device.bus.type", "cewm.ce.report.erasure.device.serial.number", "cewm.ce.report.erasure.device.size", "cewm.ce.report.erasure.device.sectors", "cewm.ce.report.erasure.device.sector.size", "cewm.ce.report.erasure.device.remapped.sectors", "cewm.ce.report.erasure.device.hpa", "cewm.ce.report.erasure.device.dco", "cewm.ce.report.erasure.pattern", "cewm.ce.report.erasure.verification.percentage", "cewm.ce.report.erasure.time.start", "cewm.ce.report.erasure.time.end", "cewm.ce.report.erasure.duration", "cewm.ce.report.erasure.status", "cewm.ce.report.erasure.hidden.areas", "cewm.ce.report.erasure.sectors", "cewm.ce.report.erasure.failed.sectors", "cewm.ce.report.erasure.remapped.sectors", "cewm.ce.report.erasure.software.version", "cewm.ce.report.erasure.compliance.requested", "cewm.ce.report.erasure.compliance.resulted", "cewm.ce.report.erasure.smart.health", "cewm.ce.report.erasure.smart.performance", "cewm.ce.report.erasure.smart.erl", "cewm.ce.report.erasure.smart.power.on.time", "cewm.ce.report.erasure.smart.read.errors", "cewm.ce.report.erasure.smart.read.errors.corrected", "cewm.ce.report.erasure.smart.read.errors.uncorrected", "cewm.ce.report.erasure.smart.write.errors", "cewm.ce.report.erasure.smart.write.errors.corrected", "cewm.ce.report.erasure.smart.write.errors.uncorrected", "cewm.ce.report.erasure.smart.verify.errors", "cewm.ce.report.erasure.smart.verify.errors.corrected", "cewm.ce.report.erasure.smart.verify.errors.uncorrected", "cewm.ce.report.status"]
-                    }
-              }`,
-        };
+                "sort": [{
+                  "column": "cewm.ce.report.erasure.time.end",
+                  "mode": "DESC"
+                }],
+                "limit": 1000,
+                "offset": 0
+              },
+            "response": {
+                    "showColumns": ["cewm.ce.report.hardware.system.version","cewm.ce.report.hardware.system.family","cewm.ce.report.erasure.status.warning","cewm.ce.report.document.id", "cewm.ce.report.date", "cewm.ce.report.document.software.version", "cewm.ce.report.document.custom.field1", "cewm.ce.report.document.custom.field2", "cewm.ce.report.document.custom.field3", "cewm.ce.report.document.custom.field4", "cewm.ce.report.document.custom.field5", "cewm.ce.report.document.operator.name", "cewm.ce.report.document.operator.group.name", "cewm.ce.report.hardware.lot.name", "cewm.ce.report.hardware.system.manufacturer", "cewm.ce.report.hardware.system.serial.number", "cewm.ce.report.hardware.system.chassis.type", "cewm.ce.report.hardware.system.model", "cewm.ce.report.hardware.system.uuid", "cewm.ce.report.hardware.system.motherboard", "cewm.ce.report.hardware.system.bios", "cewm.ce.report.hardware.system.processor", "cewm.ce.report.hardware.system.device", "cewm.ce.report.hardware.system.memory", "cewm.ce.report.hardware.system.graphic.card", "cewm.ce.report.hardware.system.sound.card", "cewm.ce.report.hardware.system.network.adapter", "cewm.ce.report.hardware.system.optical.drive", "cewm.ce.report.hardware.system.storage.controller", "cewm.ce.report.hardware.system.peripheral.ports", "cewm.ce.report.hardware.system.battery", "cewm.ce.report.erasure.lot.name", "cewm.ce.report.erasure.device.vendor", "cewm.ce.report.erasure.device.model", "cewm.ce.report.erasure.device.type", "cewm.ce.report.erasure.device.bus.type", "cewm.ce.report.erasure.device.serial.number", "cewm.ce.report.erasure.device.size", "cewm.ce.report.erasure.device.sectors", "cewm.ce.report.erasure.device.sector.size", "cewm.ce.report.erasure.device.remapped.sectors", "cewm.ce.report.erasure.device.hpa", "cewm.ce.report.erasure.device.dco", "cewm.ce.report.erasure.pattern", "cewm.ce.report.erasure.verification.percentage", "cewm.ce.report.erasure.time.start", "cewm.ce.report.erasure.time.end", "cewm.ce.report.erasure.duration", "cewm.ce.report.erasure.status", "cewm.ce.report.erasure.hidden.areas", "cewm.ce.report.erasure.sectors", "cewm.ce.report.erasure.failed.sectors", "cewm.ce.report.erasure.remapped.sectors", "cewm.ce.report.erasure.software.version", "cewm.ce.report.erasure.compliance.requested", "cewm.ce.report.erasure.compliance.resulted", "cewm.ce.report.erasure.smart.health", "cewm.ce.report.erasure.smart.performance", "cewm.ce.report.erasure.smart.erl", "cewm.ce.report.erasure.smart.power.on.time", "cewm.ce.report.erasure.smart.read.errors", "cewm.ce.report.erasure.smart.read.errors.corrected", "cewm.ce.report.erasure.smart.read.errors.uncorrected", "cewm.ce.report.erasure.smart.write.errors", "cewm.ce.report.erasure.smart.write.errors.corrected", "cewm.ce.report.erasure.smart.write.errors.uncorrected", "cewm.ce.report.erasure.smart.verify.errors", "cewm.ce.report.erasure.smart.verify.errors.corrected", "cewm.ce.report.erasure.smart.verify.errors.uncorrected", "cewm.ce.report.status"]
+                  }
+            }`,
+      };
     }
 
 
@@ -541,7 +681,7 @@ module.exports = async function registerHook(hooktypes, app) {
         };
     }
 
-    function certusOptionsMobileEq(offset, operator) {
+    function certusOptionsMobileEq(asset_id) {
         // let cond = {}
         // const date = moment();
         let date = moment().format("YYYY-MM-DD");
@@ -557,10 +697,21 @@ module.exports = async function registerHook(hooktypes, app) {
         //   {
         //     "type": "text",
         //     "operator": "eq",
-        //     "value": "199984"
+        //     "value": "${asset_id}"
         //   }
         // ]
-
+        let conditions = `{
+            "type": "date",
+            "operator": "eq",
+            "date": ${date}
+          }`
+      if(asset_id){
+        conditions = `{
+            "type": "text",
+            "operator": "eq",
+            "value": "${asset_id}"
+          }`
+      }
         return {
             method: "POST",
             url: "https://cloud.certus.software/webservices/rest-api/v1/reports/cemd",
@@ -575,13 +726,8 @@ module.exports = async function registerHook(hooktypes, app) {
                     "filter": {
                         "criteria": [
                             {
-                                "column": "cewm.cemd.report.erasure.end.time",
-                                "conditions": [{
-                                    "type": "date",
-                                    "operator": "eq",
-                                    "date": ${date}
-                                  }
-                                ]
+                                "column": "cewm.cemd.report.document.custom.field2",
+                                "conditions": [${conditions}]
                               }
                         ],
                             "conjunction": "AND"
@@ -656,7 +802,7 @@ module.exports = async function registerHook(hooktypes, app) {
         // console.log("certusLists", certusLists.length)
         if (certusLists?.length > 0) {
             const assetLists = await assetsService.readByQuery({
-                fields: ["asset_id", "asset_id", "status", "grade", "platform","project_id"],
+                fields: ["asset_id", "asset_id", "status", "grade", "platform", "project_id"],
                 limit: limit,
                 sort: ['-date_created'],
 
@@ -752,8 +898,8 @@ module.exports = async function registerHook(hooktypes, app) {
             // });
             // console.log("updateHdd values", certus)
             if (certus && certus?.length > 0) {
-                let uniqueValue = _.uniq(certus, 'device_serial_number');
-                uniqueValue = _.sortBy(uniqueValue, 'id')
+                let uniqueValue = certus.sort((a, b) => b.id - a.id);
+                uniqueValue = _.uniq(uniqueValue, 'device_serial_number');
                 let hdd_serial_number = []
                 let data_destruction = []
                 let device_size = []
@@ -810,7 +956,6 @@ module.exports = async function registerHook(hooktypes, app) {
                     if (!certus_Data.project_id) {
                         delete certus_Data.project_id;
                     }
-                    // console.log("certus_Data",certus_Data)
                     return await assetsService.updateOne(assetsData.asset_id,
                         certus_Data
                     ).then(async (response1) => {
@@ -966,7 +1111,6 @@ module.exports = async function registerHook(hooktypes, app) {
                             console.log("asset create error ==>", asset_Id)
                         });
                     } else {
-                        // console.log("asset field",field)
                         if (asset_Id) {
                             //update HDD valuessss
                             await updateHddValues(field, mapCertusData(field), assetLists, certusLists);
@@ -1360,7 +1504,7 @@ module.exports = async function registerHook(hooktypes, app) {
                     }
                     if (!certus_Mobile_Data.grade && alreadexists[0].grade_from_app) {
                         certus_Mobile_Data.grade = alreadexists[0].grade_from_app
-                    }      
+                    }
                     let updateData = {
                         "Part_No": certus_Mobile_Data.Part_No,
                         grade: certus_Mobile_Data.grade,
