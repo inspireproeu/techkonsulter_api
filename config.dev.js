@@ -1,20 +1,20 @@
 const fs = require("fs");
 module.exports = {
-    PORT: 8073,
-    PUBLIC_URL: "https://productionapi.techkonsult.se/",
+    PORT: 8077,
+    PUBLIC_URL: "https://productionv2.inspirepro.eu",
     DB_CLIENT: "pg",
     DB_HOST: "production-db-postgresql-ams3-90908-do-user-14768719-0.c.db.ondigitalocean.com",
     DB_PORT: "25060",
-    DB_DATABASE: "techkonsulter_prod",
+    DB_DATABASE: "techkonsulter_dev",
     DB_USER: "doadmin",
     DB_PASSWORD: "AVNS_c3HhhsoEL1K-hDVBqcy",
     DB_SSL: true,
     sslmode: "require",
     CORS_ENABLED: true,
     PASSWORD_RESET_URL_ALLOW_LIST:
-        'array:http://localhost:3000/setpassword',
-    CORS_ORIGIN: 'array:http://0.0.0.0:8073/,https://www.techauction.se,https://production.techkonsult.se,http://localhost:8000,https://productionv2.inspirepro.eu,https://productionv2.inspirepro.eu/Assets,https://production.itreon.se,https://production.itreon.se/user/login,https://market.itreon.eu,https://takeback.itreon.eu',
-    CORS_METHODS: 'GET,POST,PATCH,DELETE,OPTIONS',
+        'array:http://llocalhost:3000/setpassword',
+    CORS_ORIGIN: 'array:http://0.0.0.0:8073/,https://www.techauction.se,https://production.techkonsult.se,http://localhost:8000,https://productionv2.inspirepro.eu,https://productionv2.inspirepro.eu/Assets,https://production.itreon.se,https://production.itreon.se/user/login,https://techdev.inspirepro.co.in,https://techdev.inspirepro.co.in//user/login',
+    CORS_METHODS: 'GET,POST,PATCH,DELETE',
     CORS_ALLOWED_HEADERS: 'Content-Type,Authorization,X-Requested-With',
     CORS_EXPOSED_HEADERS: 'Content-Range',
     CORS_CREDENTIALS: 'true',
@@ -24,30 +24,18 @@ module.exports = {
     RATE_LIMITER_POINTS: 25,
     RATE_LIMITER_DURATION: 1,
     CACHE_ENABLED: false,
-    // STORAGE_LOCATIONS: "local",
-    //s3
-    STORAGE_LOCATIONS: "DIGITALOCEAN",
+    STORAGE_LOCATIONS: "local",
     STORAGE_LOCAL_DRIVER: "local",
     STORAGE_LOCAL_ROOT: "./uploads",
-    //NEW SPACES
-    STORAGE_DIGITALOCEAN_DRIVER: "s3",
-    STORAGE_DIGITALOCEAN_KEY: "DO002G66C6E9UPPAECD4",
-    STORAGE_DIGITALOCEAN_SECRET: "CZJ7+eAqBC/j3L6QLobaeeJw3QaHTMsHV7XWHCoY30k",
-    STORAGE_DIGITALOCEAN_BUCKET: "techkonsulter",
-    STORAGE_DIGITALOCEAN_ENDPOINT: "ams3.digitaloceanspaces.com",
-    STORAGE_DIGITALOCEAN_REGION: "us-east-1",
-    //-----------------
     KEY: "6507b425-f033-4f48-997f-ba3939e1d0d1",
     SECRET: "_bvJryyajtDyQDOaR2Ukqe5P5Ya-JKv_",
     ACCESS_TOKEN_TTL: "999d",
-    REFRESH_TOKEN_TTL: "999d",
+    REFRESH_TOKEN_TTL: "7d",
     REFRESH_TOKEN_COOKIE_SECURE: false,
     REFRESH_TOKEN_COOKIE_SAME_SITE: "lax",
     REFRESH_TOKEN_COOKIE_NAME: "directus_refresh_token",
     OAUTH_PROVIDERS: "",
     EXTENSIONS_PATH: "./extensions",
-    EMAIL_FROM: "no-reply@directus.io",
-    EMAIL_TRANSPORT: "sendmail",
     EMAIL_SENDMAIL_NEW_LINE: "unix ",
     EMAIL_SENDMAIL_PATH: "/usr/sbin/sendmail",
     DB_SSL__REJECT_UNAUTHORIZED: false,
@@ -66,5 +54,4 @@ module.exports = {
         rejectUnauthorized: false,
         ca: fs.readFileSync('./cert/ca-certificate.crt').toString()
     }
-
 };
