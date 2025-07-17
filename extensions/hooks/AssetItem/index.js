@@ -63,7 +63,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 		schema
 	});
 
-	const estimate_values_service = new ItemsService('estimate_values_computer', {
+	const asset_type_service = new ItemsService('AssetType', {
 		schema
 	});
 
@@ -989,7 +989,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 						});
 					}
 				}
-				if (fields.status === 'recycled') {
+				if (fields?.status.toLowerCase() === 'recycled') {
 					const assetList = await assetsService.readByQuery({
 						fields: ["asset_id", "model", "asset_type", "form_factor", "manufacturer", "Part_No"],
 						filter: {
@@ -1098,6 +1098,9 @@ module.exports = async function registerHook({ filter, action }, app) {
 		}
 		if (input.collection === 'project') {
 			await updateProjectFinance(data.id)
+		}
+		if (input.collection === 'part_numbers') {
+			await create_asset_type(data)
 		}
 	});
 
@@ -2002,6 +2005,21 @@ module.exports = async function registerHook({ filter, action }, app) {
 			}).catch((error1) => {
 				console.log("project commission updateee errrrr", field.asset_id)
 			});
+		}
+	}
+
+	async function create_asset_type(data){
+		const asset_type = await asset_type_service.readByQuery({
+			fields: ["Asset_Name","formfactor"],
+			filter: {
+				asset_type: {
+					_eq: data.asset_type
+				}
+			},
+		});
+		if (assetResult?.length > 0) {
+			console.log("Asset created already");
+			return
 		}
 	}
 };
