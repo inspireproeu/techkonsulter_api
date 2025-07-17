@@ -68,14 +68,15 @@ module.exports = async function registerHook(hooktypes, app) {
     })
 
     
-    cron.schedule('0 */3 * * *', async () => {
+    cron.schedule('0 */1 * * *', async () => {
         fetchRecordsComputer()
     })
 
-    cron.schedule('0 */4 * * *', async () => {
+    cron.schedule('0 */2 * * *', async () => {
         fetchRecordsMobile()
     })
-
+    // fetchRecordsComputer()
+    fetchRecordsMobile()
     // request(certusOptionsEq(0, 'eq'), async function (error, response1) {
     //     if (error) {
     //         // res.status("500").send(error);
@@ -92,10 +93,7 @@ module.exports = async function registerHook(hooktypes, app) {
     // });
 
 
-    // let arr1 = [241731,
-    //     241732,
-    //     241703,
-    //     246032];
+    // let arr1 = [245296, 245251, 245298, 245532, 245497, 245493, 245488, 245491, 245948, 245952, 245862, 245918, 250425, 250426, 250417, 245908, 245906, 245910, 245829, 245832, 250392, 245850, 245899, 245565, 249717, 249718, 245571, 245572, 245554, 249091, 245798, 245342, 249048, 249195, 249198, 249200, 249196, 249197, 245716, 249164, 245534, 245468, 238045, 238043, 245415, 245408, 244707, 248365, 248366, 244191, 244192, 244193, 239955];
     // arr1.forEach((itm) => {
     //     console.log("aaaaaaaaa", itm)
     //     request(certusOptionsEq(itm), async function (error, response1) {
@@ -150,8 +148,9 @@ module.exports = async function registerHook(hooktypes, app) {
 
     async function fetchRecordsComputer(){
         const oneMonthAgo = new Date();
-        oneMonthAgo.setDate(oneMonthAgo.getDate() - 40);
+        oneMonthAgo.setDate(oneMonthAgo.getDate()-10);
         const isoDate = oneMonthAgo.toISOString();
+        // console.log("isoDate",isoDate)
         const assetLists = await assetsService.readByQuery({
             fields: ["asset_id","asset_type", "grade", "project_id","date_created"],
             limit: -1,
@@ -161,18 +160,22 @@ module.exports = async function registerHook(hooktypes, app) {
                     date_created: {
                         _gte: isoDate
                     },
+                    platform: {
+                        _icontains: 'MOBILE_UPDATE'
                     },
-                    {
-                    _or: [
-                        { asset_type: { _null: true } },
-                        // { grade: { _null: true } },
-                    ]
-                    }
+                    },
+                    // {
+                    // _or: [
+                    //     { asset_type: { _null: true } },
+                    //     // { grade: { _null: true } },
+                    // ]
+                    // }
                 ]
                 },
             sort: ['-date_created'],
 
         });
+        // console.log("assetLists?.length",assetLists?.length)
         if(assetLists?.length >0){
             for (const obj of assetLists) {
             //   console.log(obj.asset_id,"obj.asset_id",obj.date_created)
@@ -195,7 +198,7 @@ module.exports = async function registerHook(hooktypes, app) {
     }
     async function fetchRecordsMobile(){
         const oneMonthAgo = new Date();
-        oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+        oneMonthAgo.setDate(oneMonthAgo.getDate() - 10);
         const isoDate = oneMonthAgo.toISOString();
         const assetLists = await assetsService.readByQuery({
             fields: ["asset_id","asset_type", "grade", "project_id"],
@@ -204,15 +207,18 @@ module.exports = async function registerHook(hooktypes, app) {
                 _and: [
                   {
                     date_created: {
-                      _gte: isoDate
+                        _gte: isoDate
+                    },
+                    platform: {
+                        _icontains: 'MOBILE_UPDATE'
                     },
                   },
-                  {
-                    _or: [
-                      { asset_type: { _null: true } },
-                    //   { grade: { _null: true } },
-                    ]
-                  }
+                //   {
+                //     _or: [
+                //       { asset_type: { _null: true } },
+                //     //   { grade: { _null: true } },
+                //     ]
+                //   }
                 ]
               },
             sort: ['-date_created'],
@@ -896,7 +902,6 @@ module.exports = async function registerHook(hooktypes, app) {
             //         }
             //     },
             // });
-            // console.log("updateHdd values", certus)
             if (certus && certus?.length > 0) {
                 let uniqueValue = certus.sort((a, b) => b.id - a.id);
                 uniqueValue = _.uniq(uniqueValue, 'device_serial_number');
