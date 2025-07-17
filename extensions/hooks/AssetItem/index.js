@@ -989,6 +989,44 @@ module.exports = async function registerHook({ filter, action }, app) {
 						});
 					}
 				}
+				if (fields.status === 'recycled') {
+					const assetList = await assetsService.readByQuery({
+						fields: ["asset_id", "model", "asset_type", "form_factor", "manufacturer", "Part_No"],
+						filter: {
+							_or: [
+								{ "Part_No": { _icontains: 'N/A' } },
+								{ "Part_No": { _nnull: true } },
+							],
+							_and: [
+								{ "Part_No": { _icontains: `${fields.part_no}` } }
+							]
+						},
+						limit: -1
+					});
+
+					if (assetList?.length > 0) {
+						// let selectedAssetIds = assetList.map(
+						// 	(key) => key.asset_id
+						// );
+						assetList.forEach(async (item) => {
+							let obj = {
+								status: 'RECYCLED',
+								part_number_update: 'true'
+							}
+							// console.log("objjj", obj)
+							// return
+							return await assetsService.updateOne(item.asset_id,
+								obj
+							).then((response1) => {
+								// res.json(response);
+								console.log("asset part number success", response1)
+
+							}).catch((error1) => {
+								console.log("partnumer asset update", error1)
+							});
+						});
+					}
+				}
 			}
 		} catch (error) {
 			console.log("error on part no update", error)
