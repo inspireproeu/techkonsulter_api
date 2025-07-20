@@ -76,7 +76,7 @@ module.exports = async function registerHook(hooktypes, app) {
         fetchRecordsMobile()
     })
     // fetchRecordsComputer()
-    fetchRecordsMobile()
+    // fetchRecordsMobile()
     // request(certusOptionsEq(0, 'eq'), async function (error, response1) {
     //     if (error) {
     //         // res.status("500").send(error);
