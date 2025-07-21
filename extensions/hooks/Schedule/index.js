@@ -68,13 +68,13 @@ module.exports = async function registerHook(hooktypes, app) {
     })
 
     
-    cron.schedule('0 */1 * * *', async () => {
-        fetchRecordsComputer()
-    })
+    // cron.schedule('0 */1 * * *', async () => {
+    //     fetchRecordsComputer()
+    // })
 
-    cron.schedule('0 */2 * * *', async () => {
-        fetchRecordsMobile()
-    })
+    // cron.schedule('0 */2 * * *', async () => {
+    //     fetchRecordsMobile()
+    // })
     // fetchRecordsComputer()
     // fetchRecordsMobile()
     // request(certusOptionsEq(0, 'eq'), async function (error, response1) {

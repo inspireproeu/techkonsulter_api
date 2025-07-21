@@ -1270,7 +1270,7 @@ const mailbox = {
                                                         itm2
                                                     ).then((response1) => {
                                                         // res.json(response);
-                                                        console.log("create techvaluator 1111", response1)
+                                                        // console.log("create techvaluator 1111", response1)
                                                     }).catch((error1) => {
                                                     });
                                                 }
@@ -1307,7 +1307,7 @@ const mailbox = {
                                                         itm2
                                                     ).then((response1) => {
                                                         // res.json(response);
-                                                        console.log("create techvaluator", response1)
+                                                        // console.log("create techvaluator", response1)
                                                     }).catch((error1) => {
                                                     });
                                                 }
@@ -1431,7 +1431,7 @@ const mailbox = {
                                                         itm2
                                                     ).then((response1) => {
                                                         // res.json(response);
-                                                        console.log("update techvaluator", response1)
+                                                        // console.log("update techvaluator", response1)
                                                     }).catch((error1) => {
                                                     });
                                                 } else {
@@ -1439,7 +1439,7 @@ const mailbox = {
                                                         itm2
                                                     ).then((response1) => {
                                                         // res.json(response);
-                                                        console.log("create techvaluator 1111", response1)
+                                                        // console.log("create techvaluator 1111", response1)
                                                     }).catch((error1) => {
                                                     });
                                                 }
@@ -1452,7 +1452,7 @@ const mailbox = {
                                                         itm2
                                                     ).then((response1) => {
                                                         // res.json(response);
-                                                        console.log("update techvaluator", response1)
+                                                        // console.log("update techvaluator", response1)
                                                     }).catch((error1) => {
                                                     });
                                                 } else {
@@ -1460,7 +1460,7 @@ const mailbox = {
                                                         itm2
                                                     ).then((response1) => {
                                                         // res.json(response);
-                                                        console.log("create techvaluator", response1)
+                                                        // console.log("create techvaluator", response1)
                                                     }).catch((error1) => {
                                                     });
                                                 }
