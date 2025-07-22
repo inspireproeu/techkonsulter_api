@@ -18,25 +18,22 @@ const assignValues = {
             "TOUCHSCREEN MIN",
             ",TOUCHSCREEN MIN"];
     },
-    removeMultipleWords: async (str, searchList) => {
-        if (str) {
-            const words = str.toUpperCase().split(" ");
-            const filtered = words.filter(word => !searchList.includes(word));
-            return filtered.join(" ");
-        }
-    },
     ASSIGNSTOCKLISTVALUES: async (data, type, api_name) => {
         let rows = []
         data.forEach(async (item) => {
             item.target_price = item.target_price ? Math.round(item.target_price) : '';
-            const removeMultipleWords = (str, searchList) => {
-                const words = str.split(" ");
-                const filtered = words.filter(word => !searchList.includes(word));
-                return filtered.join(" ");
-            };
-            if (item.model) {
-                item.model = removeMultipleWords(item.model, assignValues.removeModelData());
-            }
+            assignValues.removeModelData().forEach((removable) => {
+                if (item.model) {
+                    item.model = item.model.toUpperCase().replace(removable, "").trim();
+                    return item.model;
+                }
+            })
+            assignValues.removeprocessorData().forEach((removable) => {
+                if (item.processor) {
+                    item.processor = item.processor.toUpperCase().replace(removable, "").trim();
+                    return item.processor;
+                }
+            })
             if (item.asset_type === 'COMPUTER PARTS') {
                 item.asset_type = 'PARTS COMPUTER'
             }
@@ -68,12 +65,24 @@ const assignValues = {
             if (item.complaint_from_app) {
                 item.complaint_from_app = item.complaint_from_app.replace(/;/g, " ");
             }
-            if (item.complaint && item.grade !== "A") {
-                item.complaint = removeMultipleWords(item.complaint, assignValues.removeComplainData());
-            }
-            if (item.grade === "A" && item.complaint) {
-                item.complaint = removeMultipleWords(item.complaint, assignValues.removeComplainData());
-            }
+            // if (item.complaint) {
+            //     item.complaint1 = removeMultipleWords(item.complaint, assignValues.removeComplainData());
+            // }
+            // // if (item.grade === "A" && item.complaint) {
+            // //     item.complaint = removeMultipleWords(item.complaint, assignValues.removeComplainData_A_Grade());
+            // // }
+            assignValues.removeComplainData().forEach((removable) => {
+                if (item.complaint) {
+                    item.complaint = item.complaint.toUpperCase().replace(removable.toUpperCase(), "").trim();
+                    return item.complaint;
+                }
+            })
+            assignValues.removeComplainData_A_Grade().forEach((removable) => {
+                if (item.grade === "A" && item.complaint) {
+                    item.complaint = item.complaint.toUpperCase().replace(removable.toUpperCase(), "").trim();
+                    return item.complaint;
+                }
+            })
             if (item.complaint?.toUpperCase().includes('LOCK BIOS PWD MED')) {
                 item.complaint = item.complaint.toUpperCase().replace('LOCK BIOS PWD MED', "LOCK BIOS PWD");
             }
