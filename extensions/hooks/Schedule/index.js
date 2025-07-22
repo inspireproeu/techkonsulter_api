@@ -49,25 +49,26 @@ module.exports = async function registerHook(hooktypes, app) {
             });
     })
     //-----------------------------------
-
-    cron.schedule('*/59 * * * *', async () => {
+    cron.schedule('*/45 * * * *', async () => {
         request(certusOptionsEq(0, 'eq'), async function (error, response1) {
             if (error) {
                 // res.status("500").send(error);
                 console.log("error certus", error)
             } else {
                 // return
-                // console.log("certus data === >", JSON.parse(response1.body).length)
+                console.log("certus data === >", JSON.parse(response1.body).length)
                 if (response1.body && JSON.parse(response1.body).length > 0) {
                     offset += JSON.parse(response1.body).length;
-
+    
                     await insertCertusData(response1.body, 5000)
                 }
             }
         });
+
     })
 
     
+
     // cron.schedule('0 */1 * * *', async () => {
     //     fetchRecordsComputer()
     // })
@@ -131,7 +132,7 @@ module.exports = async function registerHook(hooktypes, app) {
     // // })
 
 
-    cron.schedule('*/50 * * * *', async () => {
+    cron.schedule('*/55 * * * *', async () => {
         request(certusOptionsMobileEq(0, 'eq'), async function (error, response1) {
             if (error) {
                 // res.status("500").send(error);
@@ -157,12 +158,12 @@ module.exports = async function registerHook(hooktypes, app) {
             filter: {
                 _and: [
                     {
-                    date_created: {
-                        _gte: isoDate
+                    project_id: {
+                        _eq: 60002554
                     },
-                    platform: {
-                        _icontains: 'MOBILE_UPDATE'
-                    },
+                    // platform: {
+                    //     _icontains: 'MOBILE_UPDATE'
+                    // },
                     },
                     // {
                     // _or: [
@@ -175,7 +176,7 @@ module.exports = async function registerHook(hooktypes, app) {
             sort: ['-date_created'],
 
         });
-        // console.log("assetLists?.length",assetLists?.length)
+        console.log("assetLists?.length",assetLists?.length)
         if(assetLists?.length >0){
             for (const obj of assetLists) {
             //   console.log(obj.asset_id,"obj.asset_id",obj.date_created)
@@ -541,7 +542,7 @@ module.exports = async function registerHook(hooktypes, app) {
     function certusOptionsEq(asset_id) {
         // let cond = {}
         // const date = moment();
-        let date = moment().format("YYYY-MM-DD");
+        let date = moment('2025-07-22').format("YYYY-MM-DD");
         // console.log("date", date)
         // "column": "cewm.ce.report.erasure.time.end",
         // "conditions": [{
@@ -553,20 +554,20 @@ module.exports = async function registerHook(hooktypes, app) {
         //                 "conditions": [{
         //                     "type": "text",
         //                     "operator": "eq",
-        //                     "value": "${asset_id}"
+        //                     "value": "247602"
         // let arr = [207169, 205989, 207137, 206372, 206357, 206364];
-      let conditions = `{
-            "type": "date",
-            "operator": "eq",
-            "date": ${date}
-          }`
-      if(asset_id){
-        conditions = `{
-            "type": "text",
-            "operator": "eq",
-            "value": "${asset_id}"
-          }`
-      }
+    //   let conditions = `{
+    //         "type": "date",
+    //         "operator": "eq",
+    //         "date": ${date}
+    //       }`
+    //   if(asset_id){
+    //     conditions = `{
+    //         "type": "text",
+    //         "operator": "eq",
+    //         "value": "${asset_id}"
+    //       }`
+    //   }
       return {
           method: "POST",
           url: "https://cloud.certus.software/webservices/rest-api/v1/reports/ce",
@@ -582,9 +583,13 @@ module.exports = async function registerHook(hooktypes, app) {
                 "filter": {
                   "criteria": [
                   {
-                    "column": "cewm.ce.report.document.custom.field5",
-                    "conditions": [${conditions}]
-                      }
+                    "column": "cewm.ce.report.erasure.time.end",
+                            "conditions": [{
+                            "type": "date",
+                            "operator": "eq",
+                            "date": ${date}
+                            }]
+                        }
                   ],
                   "conjunction": "AND"
                 },
@@ -706,18 +711,18 @@ module.exports = async function registerHook(hooktypes, app) {
         //     "value": "${asset_id}"
         //   }
         // ]
-        let conditions = `{
-            "type": "date",
-            "operator": "eq",
-            "date": ${date}
-          }`
-      if(asset_id){
-        conditions = `{
-            "type": "text",
-            "operator": "eq",
-            "value": "${asset_id}"
-          }`
-      }
+    //     let conditions = `{
+    //         "type": "date",
+    //         "operator": "eq",
+    //         "date": ${date}
+    //       }`
+    //   if(asset_id){
+    //     conditions = `{
+    //         "type": "text",
+    //         "operator": "eq",
+    //         "value": "${asset_id}"
+    //       }`
+    //   }
         return {
             method: "POST",
             url: "https://cloud.certus.software/webservices/rest-api/v1/reports/cemd",
@@ -732,8 +737,13 @@ module.exports = async function registerHook(hooktypes, app) {
                     "filter": {
                         "criteria": [
                             {
-                                "column": "cewm.cemd.report.document.custom.field2",
-                                "conditions": [${conditions}]
+                                "column": "cewm.cemd.report.erasure.end.time",
+                                "conditions": [{
+                                    "type": "date",
+                                    "operator": "eq",
+                                    "date": ${date}
+                                  }
+                                ]
                               }
                         ],
                             "conjunction": "AND"
