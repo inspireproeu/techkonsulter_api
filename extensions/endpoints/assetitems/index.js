@@ -441,12 +441,6 @@ module.exports = async function registerEndpoint(router, app) {
 						item.complaint = item?.complaint_from_app
 					}
 				})
-
-				// res.send({
-				// 	data: datavalues,
-				// 	status: 200
-				// })
-
 				let sql11 = `select asset_id,asset_id_nl,quantity,project_id,asset_type,form_factor,manufacturer,model,imei,serial_number,hdd,battery,grade,complaint,target_price,pallet_number,storage_id,complaint_from_app from public."Assets"  ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and LOWER(TRIM(asset_type)) like 'mobile%' and UPPER(ast.status) = 'IN STOCK' and data_destruction is null and UPPER(grade) in ('NOB','NEW') and ast.date_created < NOW() - INTERVAL '7 days' order by ast.date_created desc`
 				if (!req.query.action) {
 					sql11 = `select project_id,asset_id,asset_id_nl,quantity,asset_type,form_factor,manufacturer,model,imei,serial_number,hdd,battery,grade,complaint,target_price,pallet_number,storage_id,complaint_from_app from public."Assets"  ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and LOWER(TRIM(asset_type)) like 'mobile%' and UPPER(ast.status) = 'IN STOCK' and data_destruction is null and UPPER(grade) in ( 'NOB','NEW') order by ast.date_created desc`
