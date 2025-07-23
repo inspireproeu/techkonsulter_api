@@ -368,6 +368,7 @@ module.exports = async function registerEndpoint(router, app) {
 		return response.data;
 	}
 
+	
 	//computer stocklist
 	router.get("/exportassetscomputer", async (req, res) => {
 		let warehouse = req.query.warehouse;
