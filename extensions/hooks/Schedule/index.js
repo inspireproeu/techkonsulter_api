@@ -154,6 +154,7 @@ module.exports = async function registerHook(hooktypes, app) {
         }
 
     })
+    //fetchRecordsComputer()
 
     async function fetchRecordsComputer() {
         try {
@@ -164,7 +165,7 @@ module.exports = async function registerHook(hooktypes, app) {
             // const assets = [250714, 250715, 250716, 250717, 250718, 250719, 250720, 250721, 250722, 250723, 250724, 250725, 250726, 250727, 250728, 250729, 250730, 250731, 250732, 250733, 250734, 250735, 250736, 250737, 250738, 250739, 250740, 250741, 250742, 250743, 250744, 250745, 250746, 250747, 250748, 250749, 250750, 250751, 250752, 250753, 250754, 250755, 250756, 250757, 250758, 250759, 250760, 250761, 250762, 250763, 250764, 250765, 250766, 250767, 250768, 250769, 250770, 250771, 250772, 250773, 250774, 250775, 250776, 250777, 250778, 250779, 250780, 250781, 250782, 250783, 250784, 250785, 250786, 250787, 250789, 250791, 250792, 250794, 250795, 250796, 250797, 250798, 250799, 250800, 250801, 250802, 250803, 250804, 250805, 250806, 250807, 250808, 250809, 250810, 250811, 250812, 250813, 250815, 250816, 250817, 250818, 250819, 250820, 250821, 250822, 250823, 250824, 250825, 250826, 250827, 250828, 250829, 250830, 250831, 250832, 250833, 250834, 250835, 250836, 250837, 250838, 250839, 250840, 250841, 250842, 250843, 250844, 250845, 250846, 250847, 250848, 250849, 250850, 250851, 250853, 250854, 250855, 250856, 250974, 250975, 250976, 250977, 250978, 250979, 250980, 250981, 250982, 250983, 250984, 250985, 250986, 250987, 250988, 250989, 250990, 250991, 250992, 250993, 250994, 250995, 250996, 250997, 250998, 250999, 251000, 251001, 251002, 251003, 251004, 251005, 251006, 251007, 251008, 251009, 251010, 251011, 251012, 251013, 251014, 251015, 251016, 251017, 251018, 251019, 251020, 251021, 251022, 251023, 251024, 251025, 251026, 251027, 251028, 251029, 251030, 251031, 251032, 251033, 251034, 251035, 251036, 251037, 251038, 251039, 251040, 251041, 251042, 251043, 251045, 251046, 251047, 251048, 251049, 251050, 251051, 251052, 251053, 251054, 251055, 251056, 251057, 251058, 251059, 251060, 251061, 251062, 251063, 251064, 251065, 251066, 251067, 251068, 251069, 251070, 251071, 251072, 251073, 251120, 251121, 251122, 251123, 251124, 251125, 251126, 251127, 251128, 251129, 251130, 251131, 251132, 251133, 251134, 251135, 251136, 251137, 251138, 251139, 251140, 251141, 251142, 251143, 251144, 251145, 251146, 251147, 251148, 251149, 251150, 251151, 251152, 251154, 251155, 251156, 251157, 251158, 251159, 251161, 251162, 251163, 251164, 251165, 251166, 251167, 251168, 251169, 251170, 251171, 251172, 251173, 251174, 251175, 251176, 251177, 251178, 251179, 251180, 251181, 251182, 251183, 251184, 251185, 251186, 251187, 251188, 251189, 251190, 251191, 251192, 251193, 251194, 251195, 251196, 251197, 251198, 251199, 251200, 251201, 251202, 251203, 251204, 251205, 251206, 251207, 251208, 251209, 251210, 251211, 251212, 251213, 251214, 251215, 251216, 251217, 251218, 251219, 251220, 251221, 251222, 251223, 251224, 251225, 251226, 251227, 251228, 251229, 251230, 251231, 251232, 251233, 251234, 251235, 251236, 251237, 251238, 251240, 251241, 251242, 251243, 251244, 251245, 251246, 251247, 251248, 251249, 251250, 251251, 251252, 251253, 251254, 251255, 251256, 251257, 251258, 251259, 251260, 251261, 251262, 251263, 251264, 251265, 251266, 251267, 251268, 251269, 251270, 251271, 251272, 251273, 251274, 251275, 251276, 251277, 251278, 251279, 251280, 251281, 251282, 251283, 251284, 251285, 251286, 251287, 251288, 251289, 251290, 251291, 251292, 251293, 251294, 251295, 251296, 251298, 251299, 251300, 251301, 251302, 251303, 251304, 251305, 251306, 251307, 251308, 251309, 251310, 251311, 251312, 251313, 251314, 251315, 251316, 251317, 251318, 251319, 251329, 251330, 251331, 251332, 251333, 251334, 251335, 251336, 251337, 251338, 251339, 251340, 251341, 251342, 251343, 251344, 251345, 251346, 251347, 251348, 251349, 251350, 251351, 251352, 251353, 251354, 251355, 251356, 251358, 251359, 251360, 251361, 251362, 251363, 251364, 251365, 251366, 251367, 251368, 251369, 251370, 251371, 251372, 251373, 251374, 251375, 251376, 251377, 251378, 251379, 251380, 251381, 251382, 251383, 251384, 251385, 251386, 251387, 251388, 251389, 251390, 251452, 252037, 252038, 252039, 252040, 252041, 252042, 252043, 252044, 252045, 252046, 252047, 252048, 252049, 252050, 252051, 252052, 252053, 252054, 252055, 252056, 252057, 252058, 252059, 252060]
             const assetLists = await assetsService.readByQuery({
                 fields: ["asset_id", "asset_type", "grade", "project_id", "date_created"],
-                limit: 200,
+                limit: -1,
                 filter: {
                     _and: [
                         {
@@ -174,8 +175,8 @@ module.exports = async function registerHook(hooktypes, app) {
                         },
                         {
                             _or: [
-                                // { asset_type: { _null: true } },
-                                 { processor: { _null: true } },
+                                { asset_type: { _null: true } },
+                                //{ processor: { _null: true } },
                             ]
                         }
                     ]
@@ -183,7 +184,7 @@ module.exports = async function registerHook(hooktypes, app) {
                 sort: ['-date_created'],
 
             });
-            console.log("assetLists?.length", assetLists?.length)
+            // console.log("assetLists?.length", assetLists?.length)
             if (assetLists?.length > 0) {
                 for (const obj of assetLists) {
                     console.log("obj.asset_id", obj.asset_id)
@@ -192,20 +193,20 @@ module.exports = async function registerHook(hooktypes, app) {
                             // res.status("500").send(error);
                             console.log(obj.asset_id, "eroororr certus", error)
                         } else {
-                            console.log(obj.asset_id, "computer certus response", JSON.parse(response1.body).length)
+                            // console.log(obj.asset_id, "computer certus response", JSON.parse(response1.body).length)
 
                             // await CRONJOBS(cronjobsservice, (response1.body), 'certusmobile')
                             if (response1.body && JSON.parse(response1.body).length > 0) {
                                 offset += JSON.parse(response1.body).length;
                                 await insertCertusData(response1.body, 10000)
                             } else {
-                                console.log("mobile elsee=====> ")
+                                // console.log("mobile elsee=====> ")
                                 request(certusOptionsMobileEq_1(obj.asset_id), async function (error, response1) {
                                     if (error) {
                                         // res.status("500").send(error);
                                         console.log(obj.asset_id, "eroororr certus", error)
                                     } else {
-                                        console.log(obj.asset_id, "mobile certus response", JSON.parse(response1.body).length)
+                                        // console.log(obj.asset_id, "mobile certus response", JSON.parse(response1.body).length)
 
                                         // await CRONJOBS(cronjobsservice, (response1.body), 'certusmobile')
                                         if (response1.body && JSON.parse(response1.body).length > 0) {
@@ -451,102 +452,154 @@ module.exports = async function registerHook(hooktypes, app) {
         };
     }
 
-    // cron.schedule('*/1 * * * *', async () => {
-    //     try {
+    function certusOptionsEq_1(asset_id) {
+        // let cond = {}
+        // const date = moment();
+        let date = moment().format("YYYY-MM-DD");
+        let conditions = `{
+            "type": "date",
+            "operator": "eq",
+            "date": ${date}
+          }`
+        let column = "cewm.ce.report.erasure.time.end";
+        if (asset_id) {
+            column = "cewm.ce.report.document.custom.field5"
+            conditions = `{
+            "type": "text",
+            "operator": "eq",
+            "value": "${asset_id}"
+          }`
+        }
+        return {
+            method: "POST",
+            url: "https://cloud.certus.software/webservices/rest-api/v1/reports/ce",
+            headers: {
+                "Customer-Code": "220811",
+                Authorization: "Basic dG9yZC5oZW5yeXNvbjpJdG9ub215OEA=",
+                "Content-Type": "application/json",
+            },
+            body: `{
+              "reportMode": "ORIGINAL",
+              "groupData": "DRIVE",
+              "request": {
+                "filter": {
+                  "criteria": [
+                  {
+                    "column": ${column},
+                    "conditions": [${conditions}]
+                    }
+                  ],
+                  "conjunction": "AND"
+                },
+                "sort": [{
+                  "column": "cewm.ce.report.erasure.time.end",
+                  "mode": "DESC"
+                }],
+                "limit": 1000,
+                "offset": 0
+              },
+            "response": {
+                    "showColumns": ["cewm.ce.report.hardware.system.version","cewm.ce.report.hardware.system.family","cewm.ce.report.erasure.status.warning","cewm.ce.report.document.id", "cewm.ce.report.date", "cewm.ce.report.document.software.version", "cewm.ce.report.document.custom.field1", "cewm.ce.report.document.custom.field2", "cewm.ce.report.document.custom.field3", "cewm.ce.report.document.custom.field4", "cewm.ce.report.document.custom.field5", "cewm.ce.report.document.operator.name", "cewm.ce.report.document.operator.group.name", "cewm.ce.report.hardware.lot.name", "cewm.ce.report.hardware.system.manufacturer", "cewm.ce.report.hardware.system.serial.number", "cewm.ce.report.hardware.system.chassis.type", "cewm.ce.report.hardware.system.model", "cewm.ce.report.hardware.system.uuid", "cewm.ce.report.hardware.system.motherboard", "cewm.ce.report.hardware.system.bios", "cewm.ce.report.hardware.system.processor", "cewm.ce.report.hardware.system.device", "cewm.ce.report.hardware.system.memory", "cewm.ce.report.hardware.system.graphic.card", "cewm.ce.report.hardware.system.sound.card", "cewm.ce.report.hardware.system.network.adapter", "cewm.ce.report.hardware.system.optical.drive", "cewm.ce.report.hardware.system.storage.controller", "cewm.ce.report.hardware.system.peripheral.ports", "cewm.ce.report.hardware.system.battery", "cewm.ce.report.erasure.lot.name", "cewm.ce.report.erasure.device.vendor", "cewm.ce.report.erasure.device.model", "cewm.ce.report.erasure.device.type", "cewm.ce.report.erasure.device.bus.type", "cewm.ce.report.erasure.device.serial.number", "cewm.ce.report.erasure.device.size", "cewm.ce.report.erasure.device.sectors", "cewm.ce.report.erasure.device.sector.size", "cewm.ce.report.erasure.device.remapped.sectors", "cewm.ce.report.erasure.device.hpa", "cewm.ce.report.erasure.device.dco", "cewm.ce.report.erasure.pattern", "cewm.ce.report.erasure.verification.percentage", "cewm.ce.report.erasure.time.start", "cewm.ce.report.erasure.time.end", "cewm.ce.report.erasure.duration", "cewm.ce.report.erasure.status", "cewm.ce.report.erasure.hidden.areas", "cewm.ce.report.erasure.sectors", "cewm.ce.report.erasure.failed.sectors", "cewm.ce.report.erasure.remapped.sectors", "cewm.ce.report.erasure.software.version", "cewm.ce.report.erasure.compliance.requested", "cewm.ce.report.erasure.compliance.resulted", "cewm.ce.report.erasure.smart.health", "cewm.ce.report.erasure.smart.performance", "cewm.ce.report.erasure.smart.erl", "cewm.ce.report.erasure.smart.power.on.time", "cewm.ce.report.erasure.smart.read.errors", "cewm.ce.report.erasure.smart.read.errors.corrected", "cewm.ce.report.erasure.smart.read.errors.uncorrected", "cewm.ce.report.erasure.smart.write.errors", "cewm.ce.report.erasure.smart.write.errors.corrected", "cewm.ce.report.erasure.smart.write.errors.uncorrected", "cewm.ce.report.erasure.smart.verify.errors", "cewm.ce.report.erasure.smart.verify.errors.corrected", "cewm.ce.report.erasure.smart.verify.errors.uncorrected", "cewm.ce.report.status"]
+                  }
+            }`,
+        };
+    }
 
+    function certusOptionsMobileEq_1(asset_id) {
+        let conditions = `{
+            "type": "date",
+            "operator": "eq",
+            "date": ${date}
+          }`
+        let column = "cewm.cemd.report.erasure.end.time";
+        if (asset_id) {
+            column = "cewm.cemd.report.document.custom.field2"
+            conditions = `{
+            "type": "text",
+            "operator": "eq",
+            "value": "${asset_id}"
+          }`
+        }
 
-    //         let sql1 = `select asset_id from public."Assets" where asset_id in (202803, 202800, 202475, 201130, 759359, 202086, 201822, 202083, 200138)`
-    //         await database.raw(sql1)
-    //             .then(async (response) => {
-    //                 let result = response.rows;
-    //                 console.log("result.length", result.length)
-    //                 // return
-    //                 for (let i = 0; i <= result.length; i++) {
-    //                     let url = `https://cloud.certus.software/webservices/rest-api/v1/reports/ce`;
-    //                     request.post({
-    //                         url: url,
-    //                         headers: {
-    //                             "Customer-Code": "220811",
-    //                             Authorization: "Basic dG9yZC5oZW5yeXNvbjpJdG9ub215OEA=",
-    //                             "content-type": "application/json",
-    //                         },
-    //                         body: `{
-    //                         "reportMode": "ORIGINAL",
-    //                         "groupData": "DRIVE",
-    //                         "request": {
-    //                           "filter": {
-    //                             "criteria": [
-    //                                 {
-    //                                     "column": "cewm.ce.report.document.custom.field5",
-    //                                         "conditions": [{
-    //                                             "type": "text",
-    //                                             "operator": "eq",
-    //                                             "value": "${result[i].asset_id}"
-    //                                         }
-    //                                     ]
-    //                                 }
-    //                             ]
-    //                           }
-    //                         },
-    //                       "response": {
-    //                             "showColumns": ["cewm.ce.report.hardware.system.version","cewm.ce.report.hardware.system.family","cewm.ce.report.erasure.status.warning","cewm.ce.report.document.id", "cewm.ce.report.date", "cewm.ce.report.document.software.version", "cewm.ce.report.document.custom.field1", "cewm.ce.report.document.custom.field2", "cewm.ce.report.document.custom.field3", "cewm.ce.report.document.custom.field4", "cewm.ce.report.document.custom.field5", "cewm.ce.report.document.operator.name", "cewm.ce.report.document.operator.group.name", "cewm.ce.report.hardware.lot.name", "cewm.ce.report.hardware.system.manufacturer", "cewm.ce.report.hardware.system.serial.number", "cewm.ce.report.hardware.system.chassis.type", "cewm.ce.report.hardware.system.model", "cewm.ce.report.hardware.system.uuid", "cewm.ce.report.hardware.system.motherboard", "cewm.ce.report.hardware.system.bios", "cewm.ce.report.hardware.system.processor", "cewm.ce.report.hardware.system.device", "cewm.ce.report.hardware.system.memory", "cewm.ce.report.hardware.system.graphic.card", "cewm.ce.report.hardware.system.sound.card", "cewm.ce.report.hardware.system.network.adapter", "cewm.ce.report.hardware.system.optical.drive", "cewm.ce.report.hardware.system.storage.controller", "cewm.ce.report.hardware.system.peripheral.ports", "cewm.ce.report.hardware.system.battery", "cewm.ce.report.erasure.lot.name", "cewm.ce.report.erasure.device.vendor", "cewm.ce.report.erasure.device.model", "cewm.ce.report.erasure.device.type", "cewm.ce.report.erasure.device.bus.type", "cewm.ce.report.erasure.device.serial.number", "cewm.ce.report.erasure.device.size", "cewm.ce.report.erasure.device.sectors", "cewm.ce.report.erasure.device.sector.size", "cewm.ce.report.erasure.device.remapped.sectors", "cewm.ce.report.erasure.device.hpa", "cewm.ce.report.erasure.device.dco", "cewm.ce.report.erasure.pattern", "cewm.ce.report.erasure.verification.percentage", "cewm.ce.report.erasure.time.start", "cewm.ce.report.erasure.time.end", "cewm.ce.report.erasure.duration", "cewm.ce.report.erasure.status", "cewm.ce.report.erasure.hidden.areas", "cewm.ce.report.erasure.sectors", "cewm.ce.report.erasure.failed.sectors", "cewm.ce.report.erasure.remapped.sectors", "cewm.ce.report.erasure.software.version", "cewm.ce.report.erasure.compliance.requested", "cewm.ce.report.erasure.compliance.resulted", "cewm.ce.report.erasure.smart.health", "cewm.ce.report.erasure.smart.performance", "cewm.ce.report.erasure.smart.erl", "cewm.ce.report.erasure.smart.power.on.time", "cewm.ce.report.erasure.smart.read.errors", "cewm.ce.report.erasure.smart.read.errors.corrected", "cewm.ce.report.erasure.smart.read.errors.uncorrected", "cewm.ce.report.erasure.smart.write.errors", "cewm.ce.report.erasure.smart.write.errors.corrected", "cewm.ce.report.erasure.smart.write.errors.uncorrected", "cewm.ce.report.erasure.smart.verify.errors", "cewm.ce.report.erasure.smart.verify.errors.corrected", "cewm.ce.report.erasure.smart.verify.errors.uncorrected", "cewm.ce.report.status"]
-    //                             }
-    //                       }`,
-    //                     },
-    //                         async function (error, response) {
-    //                             if (error) {
-    //                                 // res.status("500").send(error);
-    //                                 console.log("eroororr certus", error);
-
-    //                             } else {
-    //                                 console.log("JSON.parse(response.body)", JSON.parse(response.body))
-    //                                 if (response.body && JSON.parse(response.body).length > 0) {
-    //                                     await insertCertusData(response.body)
-
-    //                                 }
-    //                             }
-
-    //                         }
-    //                     );
-    //                 }
-    //             })
-    //             .catch((error) => {
-
-    //             });
-    //     } catch (err) {
-    //         throw err
-    //     }
-    // })
+        return {
+            method: "POST",
+            url: "https://cloud.certus.software/webservices/rest-api/v1/reports/cemd",
+            headers: {
+                "Customer-Code": "220811",
+                Authorization: "Basic dG9yZC5oZW5yeXNvbjpJdG9ub215OEA=",
+                "Content-Type": "application/json",
+            },
+            body: `{
+                "reportMode": "ORIGINAL",
+                    "request": {
+                    "filter": {
+                        "criteria": [
+                            {
+                              "column": ${column},
+                              "conditions": [${conditions}]
+                              }
+                            ],
+                            "conjunction": "AND"
+                    },
+                    "sort": [
+                        {
+                            "column": "cewm.cemd.report.erasure.end.time",
+                            "mode": "ASC"
+                        }
+                    ],
+                        "limit": 1000,
+                        "offset": 0
+                },
+                "response": {
+                    "showColumns": [
+                        "cewm.cemd.report.device.supervised",
+                        "cewm.cemd.report.device.find.my",
+                        "cewm.cemd.report.document.software.version",
+                        "cewm.cemd.report.hardware.system.chassis.type",
+                        "cewm.cemd.report.erasure.duration",
+                        "cewm.cemd.report.document.id",
+                        "cewm.cemd.report.document.custom.field5",
+                        "cewm.cemd.report.document.operator.name",
+                        "cewm.cemd.report.erasure.status",
+                        "cewm.cemd.report.document.custom.field3",
+                        "cewm.cemd.report.document.custom.field4",
+                        "cewm.cemd.report.document.operator.group.name",
+                        "cewm.cemd.report.document.custom.field1",
+                        "cewm.cemd.report.document.custom.field2",
+                        "cewm.cemd.report.erasure.pattern",
+                        "cewm.cemd.report.document.id",
+                        "cewm.cemd.report.document.software.version",
+                        "cewm.cemd.report.document.operator.name",
+                        "cewm.cemd.report.document.lot.name",
+                        "cewm.cemd.report.device.manufacturer",
+                        "cewm.cemd.report.device.model",
+                        "cewm.cemd.report.device.model.number",
+                        "cewm.cemd.report.device.serial.number",
+                        "cewm.cemd.report.device.imei",
+                        "cewm.cemd.report.device.os",
+                        "cewm.cemd.report.device.os.version",
+                        "cewm.cemd.report.device.ram",
+                        "cewm.cemd.report.device.ecid",
+                        "cewm.cemd.report.device.meid",
+                        "cewm.cemd.report.device.udid",
+                        "cewm.cemd.report.erasure.start.time",
+                        "cewm.cemd.report.erasure.end.time",
+                        "cewm.cemd.report.erasure.status",
+                        "cewm.cemd.report.erasure.compliance",
+                        "cewm.cemd.report.device.battery.health",
+                        "cewm.cemd.report.device.memory.internal"
+    
+                    ]
+                }
+    
+            }`,
+        };
+    }
 
     function certusOptionsEq(asset_id) {
         // let cond = {}
         // const date = moment();
-        let date = moment('2025-07-22').format("YYYY-MM-DD");
-        // console.log("date", date)
-        // "column": "cewm.ce.report.erasure.time.end",
-        // "conditions": [{
-        // "type": "date",
-        // "operator": "eq",
-        // "date": ${date}
-
-        // "column": "cewm.ce.report.document.custom.field5",
-        //                 "conditions": [{
-        //                     "type": "text",
-        //                     "operator": "eq",
-        //                     "value": "247602"
-        // let arr = [207169, 205989, 207137, 206372, 206357, 206364];
-        //   let conditions = `{
-        //         "type": "date",
-        //         "operator": "eq",
-        //         "date": ${date}
-        //       }`
-        //   if(asset_id){
-        //     conditions = `{
-        //         "type": "text",
-        //         "operator": "eq",
-        //         "value": "${asset_id}"
-        //       }`
-        //   }
+        let date = moment().format("YYYY-MM-DD");
         return {
             method: "POST",
             url: "https://cloud.certus.software/webservices/rest-api/v1/reports/ce",
@@ -965,7 +1018,7 @@ module.exports = async function registerHook(hooktypes, app) {
     }
 
     function mapCertusData(field) {
-        let erasure_end = field["cewm.ce.report.erasure.time.end"].split(" ");
+        let erasure_end = field["cewm.ce.report.erasure.time.end"]?.split(" ");
         erasure_end.splice(3 - 1, 1);
         let erasure_enddate = erasure_end.join(" ");
 
