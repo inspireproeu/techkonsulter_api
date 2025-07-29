@@ -1137,7 +1137,7 @@ const mailbox = {
                             WHERE id = subquery.project_id`;
                         await database.raw(update_no_of_assets_sql)
                             .then(async (response) => {
-                                console.log("no of asset updated ==>", project_id)
+                                // console.log("no of asset updated ==>", project_id)
                                 let update_processed_units_sold_sql = `UPDATE public.project a
                                         SET processed_units_sold=ROUND((subquery.processed_units_sold::NUMERIC / no_of_assets_1::NUMERIC) *100)
                                         FROM (select sum(quantity) as processed_units_sold,project_id from public."Assets" where LOWER(asset_type) not in ('adapter', 'cable') 
@@ -1486,7 +1486,33 @@ const mailbox = {
             .catch((error) => {
                 console.log("error ==> 1", error1)
             });
-    }
+    },
+    CREATEPROJECTIFNEWONE: async (input, projectService,ServiceUnavailableException) => {
+        try {
+            const projectdata = await projectService.readByQuery({
+                fields: ["id", "project_type"],
+                filter: {
+                    id: {
+                        _eq: input.project_id
+                    }
+
+                },
+            });
+            if (projectdata?.length === 0) {
+                //New project created
+                await projectService.createOne(
+                    {
+                        id: input.project_id,
+                        warehouse: input.warehouse === 'NL01' ? 'NL01' : 'SE01'
+
+                    })
+            }
+
+        } catch (e) {
+            console.log("error", e)
+            throw new ServiceUnavailableException(e);
+        }
+    },
 }
 
 module.exports = mailbox;
