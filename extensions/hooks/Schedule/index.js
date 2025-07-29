@@ -49,25 +49,28 @@ module.exports = async function registerHook(hooktypes, app) {
             });
     })
     //-----------------------------------
-    cron.schedule('*/45 * * * *', async () => {
-        request(certusOptionsEq(0, 'eq'), async function (error, response1) {
-            if (error) {
-                // res.status("500").send(error);
-                console.log("error certus", error)
-            } else {
-                // return
-                console.log("certus data === >", JSON.parse(response1.body).length)
-                if (response1.body && JSON.parse(response1.body).length > 0) {
-                    offset += JSON.parse(response1.body).length;
-    
-                    await insertCertusData(response1.body, 5000)
-                }
-            }
-        });
+    cron.schedule('*/35 * * * *', async () => {
+        try {
+            request(certusOptionsEq(0, 'eq'), async function (error, response1) {
+                if (error) {
+                    // res.status("500").send(error);
+                    console.log("error certus", error)
+                } else {
+                    // return
+                    console.log("certus data === >", JSON.parse(response1.body).length)
+                    if (response1.body && JSON.parse(response1.body).length > 0) {
+                        offset += JSON.parse(response1.body).length;
 
+                        await insertCertusData(response1.body, 5000)
+                    }
+                }
+            });
+        } catch (err) {
+            throw new ServiceUnavailableException(error);
+        }
     })
 
-    
+
 
     // cron.schedule('0 */1 * * *', async () => {
     //     fetchRecordsComputer()
@@ -133,115 +136,91 @@ module.exports = async function registerHook(hooktypes, app) {
 
 
     cron.schedule('*/55 * * * *', async () => {
-        request(certusOptionsMobileEq(0, 'eq'), async function (error, response1) {
-            if (error) {
-                // res.status("500").send(error);
-                console.log("eroororr certus", error)
-            } else {
-                // await CRONJOBS(cronjobsservice, (response1.body), 'certusmobile')
-                if (response1.body && JSON.parse(response1.body).length > 0) {
-                    offset += JSON.parse(response1.body).length;
-                    await insertMobileCertusData(response1.body, 10000)
+        try {
+            request(certusOptionsMobileEq(0, 'eq'), async function (error, response1) {
+                if (error) {
+                    // res.status("500").send(error);
+                    console.log("eroororr certus", error)
+                } else {
+                    // await CRONJOBS(cronjobsservice, (response1.body), 'certusmobile')
+                    if (response1.body && JSON.parse(response1.body).length > 0) {
+                        offset += JSON.parse(response1.body).length;
+                        await insertMobileCertusData(response1.body, 10000)
+                    }
                 }
-            }
-        });
+            });
+        } catch (err) {
+            throw new ServiceUnavailableException(error);
+        }
+
     })
 
-    async function fetchRecordsComputer(){
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setDate(oneMonthAgo.getDate()-10);
-        const isoDate = oneMonthAgo.toISOString();
-        // console.log("isoDate",isoDate)
-        const assetLists = await assetsService.readByQuery({
-            fields: ["asset_id","asset_type", "grade", "project_id","date_created"],
-            limit: -1,
-            filter: {
-                _and: [
-                    {
-                    project_id: {
-                        _eq: 60002554
-                    },
-                    // platform: {
-                    //     _icontains: 'MOBILE_UPDATE'
-                    // },
-                    },
-                    // {
-                    // _or: [
-                    //     { asset_type: { _null: true } },
-                    //     // { grade: { _null: true } },
-                    // ]
-                    // }
-                ]
-                },
-            sort: ['-date_created'],
-
-        });
-        console.log("assetLists?.length",assetLists?.length)
-        if(assetLists?.length >0){
-            for (const obj of assetLists) {
-            //   console.log(obj.asset_id,"obj.asset_id",obj.date_created)
-                request(certusOptionsEq(obj.asset_id), async function (error, response1) {
-                    if (error) {
-                        // res.status("500").send(error);
-                        console.log("eroororr certus", error)
-                    } else {
-                        console.log("JSON.parse(response1.body).length", JSON.parse(response1.body).length)
-
-                        // await CRONJOBS(cronjobsservice, (response1.body), 'certusmobile')
-                        if (response1.body && JSON.parse(response1.body).length > 0) {
-                            offset += JSON.parse(response1.body).length;
-                            await insertCertusData(response1.body, 10000)
+    async function fetchRecordsComputer() {
+        try {
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setDate(oneMonthAgo.getDate() - 10);
+            // const isoDate = oneMonthAgo.toISOString();
+            // console.log("isoDate",isoDate)
+            // const assets = [250714, 250715, 250716, 250717, 250718, 250719, 250720, 250721, 250722, 250723, 250724, 250725, 250726, 250727, 250728, 250729, 250730, 250731, 250732, 250733, 250734, 250735, 250736, 250737, 250738, 250739, 250740, 250741, 250742, 250743, 250744, 250745, 250746, 250747, 250748, 250749, 250750, 250751, 250752, 250753, 250754, 250755, 250756, 250757, 250758, 250759, 250760, 250761, 250762, 250763, 250764, 250765, 250766, 250767, 250768, 250769, 250770, 250771, 250772, 250773, 250774, 250775, 250776, 250777, 250778, 250779, 250780, 250781, 250782, 250783, 250784, 250785, 250786, 250787, 250789, 250791, 250792, 250794, 250795, 250796, 250797, 250798, 250799, 250800, 250801, 250802, 250803, 250804, 250805, 250806, 250807, 250808, 250809, 250810, 250811, 250812, 250813, 250815, 250816, 250817, 250818, 250819, 250820, 250821, 250822, 250823, 250824, 250825, 250826, 250827, 250828, 250829, 250830, 250831, 250832, 250833, 250834, 250835, 250836, 250837, 250838, 250839, 250840, 250841, 250842, 250843, 250844, 250845, 250846, 250847, 250848, 250849, 250850, 250851, 250853, 250854, 250855, 250856, 250974, 250975, 250976, 250977, 250978, 250979, 250980, 250981, 250982, 250983, 250984, 250985, 250986, 250987, 250988, 250989, 250990, 250991, 250992, 250993, 250994, 250995, 250996, 250997, 250998, 250999, 251000, 251001, 251002, 251003, 251004, 251005, 251006, 251007, 251008, 251009, 251010, 251011, 251012, 251013, 251014, 251015, 251016, 251017, 251018, 251019, 251020, 251021, 251022, 251023, 251024, 251025, 251026, 251027, 251028, 251029, 251030, 251031, 251032, 251033, 251034, 251035, 251036, 251037, 251038, 251039, 251040, 251041, 251042, 251043, 251045, 251046, 251047, 251048, 251049, 251050, 251051, 251052, 251053, 251054, 251055, 251056, 251057, 251058, 251059, 251060, 251061, 251062, 251063, 251064, 251065, 251066, 251067, 251068, 251069, 251070, 251071, 251072, 251073, 251120, 251121, 251122, 251123, 251124, 251125, 251126, 251127, 251128, 251129, 251130, 251131, 251132, 251133, 251134, 251135, 251136, 251137, 251138, 251139, 251140, 251141, 251142, 251143, 251144, 251145, 251146, 251147, 251148, 251149, 251150, 251151, 251152, 251154, 251155, 251156, 251157, 251158, 251159, 251161, 251162, 251163, 251164, 251165, 251166, 251167, 251168, 251169, 251170, 251171, 251172, 251173, 251174, 251175, 251176, 251177, 251178, 251179, 251180, 251181, 251182, 251183, 251184, 251185, 251186, 251187, 251188, 251189, 251190, 251191, 251192, 251193, 251194, 251195, 251196, 251197, 251198, 251199, 251200, 251201, 251202, 251203, 251204, 251205, 251206, 251207, 251208, 251209, 251210, 251211, 251212, 251213, 251214, 251215, 251216, 251217, 251218, 251219, 251220, 251221, 251222, 251223, 251224, 251225, 251226, 251227, 251228, 251229, 251230, 251231, 251232, 251233, 251234, 251235, 251236, 251237, 251238, 251240, 251241, 251242, 251243, 251244, 251245, 251246, 251247, 251248, 251249, 251250, 251251, 251252, 251253, 251254, 251255, 251256, 251257, 251258, 251259, 251260, 251261, 251262, 251263, 251264, 251265, 251266, 251267, 251268, 251269, 251270, 251271, 251272, 251273, 251274, 251275, 251276, 251277, 251278, 251279, 251280, 251281, 251282, 251283, 251284, 251285, 251286, 251287, 251288, 251289, 251290, 251291, 251292, 251293, 251294, 251295, 251296, 251298, 251299, 251300, 251301, 251302, 251303, 251304, 251305, 251306, 251307, 251308, 251309, 251310, 251311, 251312, 251313, 251314, 251315, 251316, 251317, 251318, 251319, 251329, 251330, 251331, 251332, 251333, 251334, 251335, 251336, 251337, 251338, 251339, 251340, 251341, 251342, 251343, 251344, 251345, 251346, 251347, 251348, 251349, 251350, 251351, 251352, 251353, 251354, 251355, 251356, 251358, 251359, 251360, 251361, 251362, 251363, 251364, 251365, 251366, 251367, 251368, 251369, 251370, 251371, 251372, 251373, 251374, 251375, 251376, 251377, 251378, 251379, 251380, 251381, 251382, 251383, 251384, 251385, 251386, 251387, 251388, 251389, 251390, 251452, 252037, 252038, 252039, 252040, 252041, 252042, 252043, 252044, 252045, 252046, 252047, 252048, 252049, 252050, 252051, 252052, 252053, 252054, 252055, 252056, 252057, 252058, 252059, 252060]
+            const assetLists = await assetsService.readByQuery({
+                fields: ["asset_id", "asset_type", "grade", "project_id", "date_created"],
+                limit: 200,
+                filter: {
+                    _and: [
+                        {
+                            platform: {
+                                _icontains: 'MOBILE_UPDATE'
+                            },
+                        },
+                        {
+                            _or: [
+                                // { asset_type: { _null: true } },
+                                 { processor: { _null: true } },
+                            ]
                         }
-                    }
-                });
-            }
-        }
-    }
-    async function fetchRecordsMobile(){
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setDate(oneMonthAgo.getDate() - 10);
-        const isoDate = oneMonthAgo.toISOString();
-        const assetLists = await assetsService.readByQuery({
-            fields: ["asset_id","asset_type", "grade", "project_id"],
-            limit: -1,
-            filter: {
-                _and: [
-                  {
-                    date_created: {
-                        _gte: isoDate
-                    },
-                    platform: {
-                        _icontains: 'MOBILE_UPDATE'
-                    },
-                  },
-                //   {
-                //     _or: [
-                //       { asset_type: { _null: true } },
-                //     //   { grade: { _null: true } },
-                //     ]
-                //   }
-                ]
-              },
-            sort: ['-date_created'],
+                    ]
+                },
+                sort: ['-date_created'],
 
-        });
-        if(assetLists?.length >0){
-          for (const obj of assetLists) {
-            request(certusOptionsMobileEq(obj.asset_id), async function (error, response1) {
-              if (error) {
-                  // res.status("500").send(error);
-                  console.log("eroororr certus", error)
-              } else {
-                  console.log("JSON.parse(response1.body).length", JSON.parse(response1.body).length)
-  
-                  // await CRONJOBS(cronjobsservice, (response1.body), 'certusmobile')
-                  if (response1.body && JSON.parse(response1.body).length > 0) {
-                      offset += JSON.parse(response1.body).length;
-                      await insertMobileCertusData(response1.body, 10000)
-                  }
-              }
-          });
-          }
+            });
+            console.log("assetLists?.length", assetLists?.length)
+            if (assetLists?.length > 0) {
+                for (const obj of assetLists) {
+                    console.log("obj.asset_id", obj.asset_id)
+                    request(certusOptionsEq_1(obj.asset_id), async function (error, response1) {
+                        if (error) {
+                            // res.status("500").send(error);
+                            console.log(obj.asset_id, "eroororr certus", error)
+                        } else {
+                            console.log(obj.asset_id, "computer certus response", JSON.parse(response1.body).length)
+
+                            // await CRONJOBS(cronjobsservice, (response1.body), 'certusmobile')
+                            if (response1.body && JSON.parse(response1.body).length > 0) {
+                                offset += JSON.parse(response1.body).length;
+                                await insertCertusData(response1.body, 10000)
+                            } else {
+                                console.log("mobile elsee=====> ")
+                                request(certusOptionsMobileEq_1(obj.asset_id), async function (error, response1) {
+                                    if (error) {
+                                        // res.status("500").send(error);
+                                        console.log(obj.asset_id, "eroororr certus", error)
+                                    } else {
+                                        console.log(obj.asset_id, "mobile certus response", JSON.parse(response1.body).length)
+
+                                        // await CRONJOBS(cronjobsservice, (response1.body), 'certusmobile')
+                                        if (response1.body && JSON.parse(response1.body).length > 0) {
+                                            offset += JSON.parse(response1.body).length;
+                                            await insertCertusData(response1.body, 10000)
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (err) {
+            throw err
         }
     }
     // let arr = [
@@ -556,27 +535,27 @@ module.exports = async function registerHook(hooktypes, app) {
         //                     "operator": "eq",
         //                     "value": "247602"
         // let arr = [207169, 205989, 207137, 206372, 206357, 206364];
-    //   let conditions = `{
-    //         "type": "date",
-    //         "operator": "eq",
-    //         "date": ${date}
-    //       }`
-    //   if(asset_id){
-    //     conditions = `{
-    //         "type": "text",
-    //         "operator": "eq",
-    //         "value": "${asset_id}"
-    //       }`
-    //   }
-      return {
-          method: "POST",
-          url: "https://cloud.certus.software/webservices/rest-api/v1/reports/ce",
-          headers: {
-              "Customer-Code": "220811",
-              Authorization: "Basic dG9yZC5oZW5yeXNvbjpJdG9ub215OEA=",
-              "Content-Type": "application/json",
-          },
-          body: `{
+        //   let conditions = `{
+        //         "type": "date",
+        //         "operator": "eq",
+        //         "date": ${date}
+        //       }`
+        //   if(asset_id){
+        //     conditions = `{
+        //         "type": "text",
+        //         "operator": "eq",
+        //         "value": "${asset_id}"
+        //       }`
+        //   }
+        return {
+            method: "POST",
+            url: "https://cloud.certus.software/webservices/rest-api/v1/reports/ce",
+            headers: {
+                "Customer-Code": "220811",
+                Authorization: "Basic dG9yZC5oZW5yeXNvbjpJdG9ub215OEA=",
+                "Content-Type": "application/json",
+            },
+            body: `{
               "reportMode": "ORIGINAL",
               "groupData": "DRIVE",
               "request": {
@@ -604,7 +583,7 @@ module.exports = async function registerHook(hooktypes, app) {
                     "showColumns": ["cewm.ce.report.hardware.system.version","cewm.ce.report.hardware.system.family","cewm.ce.report.erasure.status.warning","cewm.ce.report.document.id", "cewm.ce.report.date", "cewm.ce.report.document.software.version", "cewm.ce.report.document.custom.field1", "cewm.ce.report.document.custom.field2", "cewm.ce.report.document.custom.field3", "cewm.ce.report.document.custom.field4", "cewm.ce.report.document.custom.field5", "cewm.ce.report.document.operator.name", "cewm.ce.report.document.operator.group.name", "cewm.ce.report.hardware.lot.name", "cewm.ce.report.hardware.system.manufacturer", "cewm.ce.report.hardware.system.serial.number", "cewm.ce.report.hardware.system.chassis.type", "cewm.ce.report.hardware.system.model", "cewm.ce.report.hardware.system.uuid", "cewm.ce.report.hardware.system.motherboard", "cewm.ce.report.hardware.system.bios", "cewm.ce.report.hardware.system.processor", "cewm.ce.report.hardware.system.device", "cewm.ce.report.hardware.system.memory", "cewm.ce.report.hardware.system.graphic.card", "cewm.ce.report.hardware.system.sound.card", "cewm.ce.report.hardware.system.network.adapter", "cewm.ce.report.hardware.system.optical.drive", "cewm.ce.report.hardware.system.storage.controller", "cewm.ce.report.hardware.system.peripheral.ports", "cewm.ce.report.hardware.system.battery", "cewm.ce.report.erasure.lot.name", "cewm.ce.report.erasure.device.vendor", "cewm.ce.report.erasure.device.model", "cewm.ce.report.erasure.device.type", "cewm.ce.report.erasure.device.bus.type", "cewm.ce.report.erasure.device.serial.number", "cewm.ce.report.erasure.device.size", "cewm.ce.report.erasure.device.sectors", "cewm.ce.report.erasure.device.sector.size", "cewm.ce.report.erasure.device.remapped.sectors", "cewm.ce.report.erasure.device.hpa", "cewm.ce.report.erasure.device.dco", "cewm.ce.report.erasure.pattern", "cewm.ce.report.erasure.verification.percentage", "cewm.ce.report.erasure.time.start", "cewm.ce.report.erasure.time.end", "cewm.ce.report.erasure.duration", "cewm.ce.report.erasure.status", "cewm.ce.report.erasure.hidden.areas", "cewm.ce.report.erasure.sectors", "cewm.ce.report.erasure.failed.sectors", "cewm.ce.report.erasure.remapped.sectors", "cewm.ce.report.erasure.software.version", "cewm.ce.report.erasure.compliance.requested", "cewm.ce.report.erasure.compliance.resulted", "cewm.ce.report.erasure.smart.health", "cewm.ce.report.erasure.smart.performance", "cewm.ce.report.erasure.smart.erl", "cewm.ce.report.erasure.smart.power.on.time", "cewm.ce.report.erasure.smart.read.errors", "cewm.ce.report.erasure.smart.read.errors.corrected", "cewm.ce.report.erasure.smart.read.errors.uncorrected", "cewm.ce.report.erasure.smart.write.errors", "cewm.ce.report.erasure.smart.write.errors.corrected", "cewm.ce.report.erasure.smart.write.errors.uncorrected", "cewm.ce.report.erasure.smart.verify.errors", "cewm.ce.report.erasure.smart.verify.errors.corrected", "cewm.ce.report.erasure.smart.verify.errors.uncorrected", "cewm.ce.report.status"]
                   }
             }`,
-      };
+        };
     }
 
 
@@ -711,18 +690,18 @@ module.exports = async function registerHook(hooktypes, app) {
         //     "value": "${asset_id}"
         //   }
         // ]
-    //     let conditions = `{
-    //         "type": "date",
-    //         "operator": "eq",
-    //         "date": ${date}
-    //       }`
-    //   if(asset_id){
-    //     conditions = `{
-    //         "type": "text",
-    //         "operator": "eq",
-    //         "value": "${asset_id}"
-    //       }`
-    //   }
+        //     let conditions = `{
+        //         "type": "date",
+        //         "operator": "eq",
+        //         "date": ${date}
+        //       }`
+        //   if(asset_id){
+        //     conditions = `{
+        //         "type": "text",
+        //         "operator": "eq",
+        //         "value": "${asset_id}"
+        //       }`
+        //   }
         return {
             method: "POST",
             url: "https://cloud.certus.software/webservices/rest-api/v1/reports/cemd",
@@ -859,20 +838,6 @@ module.exports = async function registerHook(hooktypes, app) {
                                     .then(async (results) => {
                                         if (!mapCertusData(assetsData[i]).asset_id) {
                                             return
-                                        }
-                                        if (projectID) {
-                                            let sql = `select count(*) cnt from public."project" where id = '${projectID}'`;
-                                            await database.raw(sql)
-                                                .then(async (response) => {
-                                                    let count = response.rows[0].cnt
-                                                    if (Number(count) === 0) {
-                                                        let sql = `insert into public."project" (id) values (${projectID})`;
-                                                        await database.raw(sql)
-                                                    }
-                                                })
-                                                .catch((error) => {
-                                                    // res.send(500)
-                                                });
                                         }
                                         await insertAssetsSingle(assetsData[i], assetLists, certusLists)
 
@@ -1384,7 +1349,7 @@ module.exports = async function registerHook(hooktypes, app) {
         })
         if (certusMobileLists) {
             const assetLists = await assetsService.readByQuery({
-                fields: ["asset_id", "status", "grade", "data_destruction", "platform", "grade_from_app","project_id"],
+                fields: ["asset_id", "status", "grade", "data_destruction", "platform", "grade_from_app", "project_id"],
                 limit: limit + limit,
                 sort: ['-date_created'],
                 // filter: {
