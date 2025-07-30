@@ -73,13 +73,13 @@ const assignValues = {
             // // }
             assignValues.removeComplainData().forEach((removable) => {
                 if (item.complaint) {
-                    item.complaint = item.complaint.toUpperCase().trim().replace(removable.toUpperCase(), "").trim();
+                    item.complaint = item.complaint.toUpperCase().replace(removable.toUpperCase(), "").trim();
                     return item.complaint;
                 }
             })
             assignValues.removeComplainData_A_Grade().forEach((removable) => {
                 if (item.grade === "A" && item.complaint) {
-                    item.complaint = item.complaint.toUpperCase().trim().replace(removable.toUpperCase(), "").trim();
+                    item.complaint = item.complaint.toUpperCase().replace(removable.toUpperCase(), "").trim();
                     return item.complaint;
                 }
             })
