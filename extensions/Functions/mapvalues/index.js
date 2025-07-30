@@ -1,7 +1,7 @@
 
 const assignValues = {
     removeComplainData_A_Grade: () => {
-        return ["MIN", "LID: SCR", "LID:SCR,", "CHASSI:SCR", "CHASSI:SCR", "CHASSI: SCR,", "EDGE SCR", "REAR SCR", "CHASSI: SCUFFS,", ",CHASSI: SCUFFS", "CHASSI: SCUFFS","CHASSI: SCUFFS ", "SCREEN: KBD IMPRINTS MIN,", "SCREEN: KBD IMPRINTS MIN", "SCREEN: SCR MIN,", "SCREEN: SCR MIN", "LID: SCUFFS MIN", "LID: SCUFFS MIN,", "WORN:KBD MIN,", "WORN:KBD MIN", "WORN:PAD MIN", "WORN:PAD MIN,", "SCREEN: PRESS MARK MIN,", "SCREEN: PRESS MARK MIN", "CHASSI: SCR MIN,", "CHASSI: SCR MIN"];
+        return ["LID: SCR MIN", "LID:SCR MIN,", "CHASSI:SCR MIN", "CHASSI:SCR MIN", "CHASSI: SCR MIN,", "EDGE SCR MIN", "REAR SCR MIN", "CHASSI: SCUFFS MIN", "CHASSI: SCUFFS MIN,", ",CHASSI: SCUFFS MIN", "CHASSI: SCUFFS MIN", "CHASSI: SCUFFS MIN ", "SCREEN: SCR,", "SCREEN: SCR MIN", "LID: SCUFFS MIN", "LID: SCUFFS MIN,", "WORN:KBD MIN", "WORN:KBD MIN,", "WORN:PAD MIN", "WORN:PAD MIN,", "SCREEN: PRESS MARK MIN,", "SCREEN: PRESS MARK MIN", "CHASSI: SCR MIN,", "CHASSI: SCR MIN", ",MIN", "MIN,", ",,"];
     },
     removeprocessorData: () => {
         return ["INTEL(R) PENTIUM(R) CPU ", "FAMILY: CORE I5; VERSION: ", "FAMILY: CORE I7; VERSION: ", "INTEL(R) XEON(R) CPU ", "INTEL(R) CORE(TM) ", "AMD ", "PROCESSOR ", "INTEL(R) XEON(R) CPU", "INTEL(R) CORE(TM)", "AMD", "PROCESSOR", "INTEL(R) XEON(R) CPU;", "INTEL(R) CORE(TM);", "AMD;", "PROCESSOR;", "11TH GEN ", "12TH GEN ", "13TH GEN ", "14TH GEN ", "15TH GEN ", "INTEL(R) XEON(R) ", "INTEL(R) CELERON(R) CPU ", "FAMILY: CELERON; VERSION: ", "INTEL(R) CELERON(R) ", "INTEL; FAMILY: XEON; VERSION: ", "INTEL(R) ATOM(TM) CPU ", "PENTIUM(R) DUAL-CORE CPU ", "DUAL-CORE CPU "];
@@ -16,7 +16,9 @@ const assignValues = {
             ",COMPUTRACE REM",
             "COMPUTRACE REM",
             "TOUCHSCREEN MIN",
-            ",TOUCHSCREEN MIN"];
+            ",TOUCHSCREEN MIN",
+            "MIN"
+        ];
     },
     ASSIGNSTOCKLISTVALUES: async (data, type, api_name) => {
         let rows = []
@@ -68,18 +70,18 @@ const assignValues = {
             // if (item.complaint) {
             //     item.complaint1 = removeMultipleWords(item.complaint, assignValues.removeComplainData());
             // }
-            // // if (item.grade === "A" && item.complaint) {
-            // //     item.complaint = removeMultipleWords(item.complaint, assignValues.removeComplainData_A_Grade());
-            // // }
+            // if (item.grade === "A" && item.complaint) {
+            //     item.complaint = removeMultipleWords(item.complaint, assignValues.removeComplainData_A_Grade());
+            // }
             assignValues.removeComplainData().forEach((removable) => {
-                if (item.complaint) {
-                    item.complaint = item.complaint.toUpperCase().replace(removable.toUpperCase(), "").trim();
+                if (item.complaint && item.grade !== "A") {
+                    item.complaint = item.complaint.toUpperCase().trim().replace(removable.toUpperCase(), "").trim();
                     return item.complaint;
                 }
             })
             assignValues.removeComplainData_A_Grade().forEach((removable) => {
                 if (item.grade === "A" && item.complaint) {
-                    item.complaint = item.complaint.toUpperCase().replace(removable.toUpperCase(), "").trim();
+                    item.complaint = item.complaint.toUpperCase().trim().replace(removable.toUpperCase(), "").trim();
                     return item.complaint;
                 }
             })
