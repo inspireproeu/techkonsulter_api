@@ -74,13 +74,13 @@ const assignValues = {
             //     item.complaint = removeMultipleWords(item.complaint, assignValues.removeComplainData_A_Grade());
             // }
             assignValues.removeComplainData().forEach((removable) => {
-                if (item.complaint && item.grade !== "A") {
+                if (item.complaint && (item.grade !== "A" && item.grade !== "A+")) {
                     item.complaint = item.complaint.toUpperCase().trim().replace(removable.toUpperCase(), "").trim();
                     return item.complaint;
                 }
             })
             assignValues.removeComplainData_A_Grade().forEach((removable) => {
-                if (item.grade === "A" && item.complaint) {
+                if ((item.grade === "A" || item.grade === "A+") && item.complaint) {
                     item.complaint = item.complaint.toUpperCase().trim().replace(removable.toUpperCase(), "").trim();
                     return item.complaint;
                 }
