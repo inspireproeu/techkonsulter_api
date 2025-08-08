@@ -50,9 +50,22 @@ const assignValues = {
                             let value = obj.split('%')[0] ? Math.round(obj.split('%')[0].trim()) : null
                             if (value < 50) {
                                 item.battery = "def/low % battery";
-                                item.complaint = "def bat";
+                                item.complaint = item.complaint + " def bat";
                             } else {
                                 item.battery = ""
+                            }
+                        }
+                    })
+                }
+            }
+            if (item.battery && item.asset_type.toLowerCase() === 'MOBILE DEVICE') {
+                let temp = item.battery.split(':')
+                if (temp[1]?.includes('%')) {
+                    temp.forEach((obj) => {
+                        if (obj.includes('%')) {
+                            let value = obj.split('%')[0] ? Math.round(obj.split('%')[0].trim()) : null
+                            if (value < 80) {
+                                item.complaint = item.complaint + " def bat";
                             }
                         }
                     })
