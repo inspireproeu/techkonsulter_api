@@ -1,7 +1,7 @@
 
 const assignValues = {
     removeComplainData_A_Grade: () => {
-        return ["LID: SCR", "LID:SCR,", "CHASSI:SCR", "CHASSI:SCR", "CHASSI: SCR,", "EDGE SCR", "REAR SCR", "CHASSI: SCUFFS MIN,", "CHASSI: SCUFFS MIN", "SCREEN: KBD IMPRINTS MIN,", "SCREEN: KBD IMPRINTS MIN", "SCREEN: SCR MIN,", "SCREEN: SCR MIN", "LID: SCUFFS MIN", "LID: SCUFFS MIN,", "WORN:KBD MIN,", "WORN:KBD MIN", "WORN:PAD MIN", "WORN:PAD MIN,", "SCREEN: PRESS MARK MIN,", "SCREEN: PRESS MARK MIN", "CHASSI: SCR MIN,", "CHASSI: SCR MIN"];
+        return ["LID: SCR MIN", "LID:SCR MIN,", "CHASSI:SCR MIN", "CHASSI:SCR MIN", "CHASSI: SCR MIN,", "EDGE SCR MIN", "REAR SCR MIN", "CHASSI: SCUFFS MIN", "CHASSI: SCUFFS MIN,", ",CHASSI: SCUFFS MIN", "CHASSI: SCUFFS MIN", "CHASSI: SCUFFS MIN ", "SCREEN: SCR,", "SCREEN: SCR MIN", "LID: SCUFFS MIN", "LID: SCUFFS MIN,", "WORN:KBD MIN", "WORN:KBD MIN,", "WORN:PAD MIN", "WORN:PAD MIN,", "SCREEN: PRESS MARK MIN,", "SCREEN: PRESS MARK MIN", "CHASSI: SCR MIN,", "CHASSI: SCR MIN", ",MIN", "MIN,", ",,"];
     },
     removeprocessorData: () => {
         return ["INTEL(R) PENTIUM(R) CPU ", "FAMILY: CORE I5; VERSION: ", "FAMILY: CORE I7; VERSION: ", "INTEL(R) XEON(R) CPU ", "INTEL(R) CORE(TM) ", "AMD ", "PROCESSOR ", "INTEL(R) XEON(R) CPU", "INTEL(R) CORE(TM)", "AMD", "PROCESSOR", "INTEL(R) XEON(R) CPU;", "INTEL(R) CORE(TM);", "AMD;", "PROCESSOR;", "11TH GEN ", "12TH GEN ", "13TH GEN ", "14TH GEN ", "15TH GEN ", "INTEL(R) XEON(R) ", "INTEL(R) CELERON(R) CPU ", "FAMILY: CELERON; VERSION: ", "INTEL(R) CELERON(R) ", "INTEL; FAMILY: XEON; VERSION: ", "INTEL(R) ATOM(TM) CPU ", "PENTIUM(R) DUAL-CORE CPU ", "DUAL-CORE CPU "];
@@ -10,9 +10,17 @@ const assignValues = {
         return ["NOTEBOOK PC", "15.6 INCH", "14 INCH", "MOBILE WORKSTATION PC", "WITH RADEON GRAPHICS", "HP Compaq ", "HP ", "Dell ", "Lenovo ", "Compaq ", "HP Compaq", "HP", "Dell", "Lenovo", "Compaq"];
     },
     removeComplainData: () => {
-        return ["SCREEN MIN SCR", "REAR MIN SCR", "EDGE MIN SCR", "chassi: glue", "chassi:glue", "chassi glue", "lid: glue", "Chassi min scr", "pad.worn", "rem BIOS pwd", "lid: min scr", "Reset to factory defaults", "Chassi.Glue", "Powerwashed", "lid; min scr", "chassi; min scr", "kbd; no TP", "pad; worn", "Factory reset", "HW", "POS unit", "POS unit,", "kbd; worn ", "kbd; worn", "Missing adapter", "pad:worn", "lid; min scr", "chassi: min scr", "lid, min scr", "pad, worn", "KBD: worn", "chassii: min scr", "chassi: min scr", "NO TP", "Missing TP", "pad: worn", "chassi. min scr", "MDM UNLOCKED", "REM MDM LOCK", "rem bios pwd,", "rem bios pwd;", "BIOS PW REM MIN", "BIOS PW REM", "REM COMPUTRACE", ",BIOS PW REM MIN", ",BIOS PW REM", ",REM COMPUTRACE", 'min', ' min', 'MIN', ' MIN'];
+        return ["SCREEN MIN SCR", "REAR MIN SCR", "EDGE MIN SCR", "chassi: glue", "chassi:glue", "chassi glue", "lid: glue", "Chassi min scr", "pad.worn", "rem BIOS pwd", "lid: min scr", "Reset to factory defaults", "Chassi.Glue", "Powerwashed", "lid; min scr", "chassi; min scr", "kbd; no TP", "pad; worn", "Factory reset", "HW", "POS unit", "POS unit,", "kbd; worn ", "kbd; worn", "Missing adapter", "pad:worn", "lid; min scr", "chassi: min scr", "lid, min scr", "pad, worn", "KBD: worn", "chassii: min scr", "chassi: min scr", "NO TP", "Missing TP", "pad: worn", "chassi. min scr", "MDM UNLOCKED", "REM MDM LOCK", "rem bios pwd,", "rem bios pwd;", "BIOS PW REM MIN", "BIOS PW REM", "REM COMPUTRACE", ",BIOS PW REM MIN", ",BIOS PW REM", ",REM COMPUTRACE", 'min', ' min', 'MIN', ' MIN',
+            ",COMPUTRACE REM MIN",
+            "COMPUTRACE REM MIN",
+            ",COMPUTRACE REM",
+            "COMPUTRACE REM",
+            "TOUCHSCREEN MIN",
+            ",TOUCHSCREEN MIN",
+            "MIN"
+        ];
     },
-    ASSIGNSTOCKLISTVALUES: async (data, type,api_name) => {
+    ASSIGNSTOCKLISTVALUES: async (data, type, api_name) => {
         let rows = []
         data.forEach(async (item) => {
             item.target_price = item.target_price ? Math.round(item.target_price) : '';
@@ -42,9 +50,22 @@ const assignValues = {
                             let value = obj.split('%')[0] ? Math.round(obj.split('%')[0].trim()) : null
                             if (value < 50) {
                                 item.battery = "def/low % battery";
-                                item.complaint = "def bat";
+                                item.complaint = item.complaint + " def bat";
                             } else {
                                 item.battery = ""
+                            }
+                        }
+                    })
+                }
+            }
+            if (item.battery && item.asset_type.toLowerCase() === 'MOBILE DEVICE') {
+                let temp = item.battery.split(':')
+                if (temp[1]?.includes('%')) {
+                    temp.forEach((obj) => {
+                        if (obj.includes('%')) {
+                            let value = obj.split('%')[0] ? Math.round(obj.split('%')[0].trim()) : null
+                            if (value < 80) {
+                                item.complaint = item.complaint + " def bat";
                             }
                         }
                     })
@@ -59,19 +80,30 @@ const assignValues = {
             if (item.complaint_from_app) {
                 item.complaint_from_app = item.complaint_from_app.replace(/;/g, " ");
             }
-
+            // if (item.complaint) {
+            //     item.complaint1 = removeMultipleWords(item.complaint, assignValues.removeComplainData());
+            // }
+            // if (item.grade === "A" && item.complaint) {
+            //     item.complaint = removeMultipleWords(item.complaint, assignValues.removeComplainData_A_Grade());
+            // }
             assignValues.removeComplainData().forEach((removable) => {
-                if (item.complaint) {
-                    item.complaint = item.complaint.toUpperCase().replace(removable.toUpperCase(), "").trim();
+                if (item.complaint && (item.grade !== "A" && item.grade !== "A+")) {
+                    item.complaint = item.complaint.toUpperCase().trim().replace(removable.toUpperCase(), "").trim();
                     return item.complaint;
                 }
             })
             assignValues.removeComplainData_A_Grade().forEach((removable) => {
-                if (item.grade === "A" && item.complaint) {
-                    item.complaint = item.complaint.toUpperCase().replace(removable.toUpperCase(), "").trim();
+                if ((item.grade === "A" || item.grade === "A+") && item.complaint) {
+                    item.complaint = item.complaint.toUpperCase().trim().replace(removable.toUpperCase(), "").trim();
                     return item.complaint;
                 }
             })
+            if (item.complaint?.toUpperCase().includes('LOCK BIOS PWD MED')) {
+                item.complaint = item.complaint.toUpperCase().replace('LOCK BIOS PWD MED', "LOCK BIOS PWD");
+            }
+            if (item.complaint?.toUpperCase().includes('DEF KBD MIN')) {
+                item.complaint = item.complaint.toUpperCase().replace('DEF KBD MIN', "DEF KBD");
+            }
             if (item.complaint) {
                 //----------- Delete first character of string if it is comma from string if its firts
                 while (item.complaint.charAt(0) === ',') {
@@ -82,8 +114,8 @@ const assignValues = {
                 if (complaint.toUpperCase() === 'MIN') {
                     item.complaint = ''; // set cmplaint as empty when value shows only MIN
                 }
-            }
 
+            }
 
             if (item.asset_type && (item.asset_type.toUpperCase() === 'COMPUTER')) {
                 let hddtext = ["no hdd", "hdd rem", "hdd crash", "hdd fail"]
@@ -134,19 +166,19 @@ const assignValues = {
                         || dataDestruction.includes("not erased (")
                         || dataDestruction.toLowerCase() === "not erased") {
                         delete item
-                    }else {
-                    stocks_report.push(item)
+                    } else {
+                        stocks_report.push(item)
                     }
                 } else {
-                    if(api_name){
+                    if (api_name) {
                         delete item.data_destruction
                     }
                     stocks_report.push(item)
                 }
             } else {
-                                  if(api_name){
-                        delete item.data_destruction
-                    }
+                if (api_name) {
+                    delete item.data_destruction
+                }
                 stocks_report.push(item)
             }
         })

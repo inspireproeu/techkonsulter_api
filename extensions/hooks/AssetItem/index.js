@@ -5,7 +5,8 @@ const { UPDATECOMPLIANTS,
 	MAPPRODUCTREPORT,
 	UPDATEPROJECTSQL,
 	UPDATEESTIMATEVALUECOMPUTER,
-	UPDATEESTIMATEVALUEMOBILE
+	UPDATEESTIMATEVALUEMOBILE,
+	CREATEPROJECTIFNEWONE
 } = require('../../Functions');
 
 module.exports = async function registerHook({ filter, action }, app) {
@@ -215,32 +216,8 @@ module.exports = async function registerHook({ filter, action }, app) {
 					input.sold_price = Math.round(input.sold_price);
 				}
 				if (input.project_id && !isNaN(input.project_id)) {
-
-					const projectdata = await projectService.readByQuery({
-						fields: ["id", "project_type"],
-						filter: {
-							id: {
-								_eq: input.project_id
-							}
-
-						},
-					});
-					// if (projectdata?.length > 0) {
-					// 	if (projectdata[0].project_type === 'ONHOLD') {
-					// 		if (input.status !== 'RETURNED' && input.status !== 'RECYCLED') {
-					// 			input.status = 'ON HOLD'
-					// 		}
-					// 	}
-					// } else 
-					if (projectdata?.length === 0) {
-						//New project created
-						await projectService.createOne(
-							{
-								id: input.project_id,
-								warehouse: input.warehouse === 'NL01' ? 'NL01' : 'SE01'
-
-							})
-					}
+					//check project exists if yes new project create
+					await CREATEPROJECTIFNEWONE(input, projectService, ServiceUnavailableException);
 				}
 				if (input.processor) {
 					removeprocessorData.forEach((removable) => {

@@ -14,7 +14,6 @@ module.exports = async function registerEndpoint(router, app) {
 	const schema = await app.getSchema();
 	// const accountabillity = await app.accountabillity();
 	const database = app.database;
-	const Excel = require('exceljs');
 	const MailService = app.services.MailService;
 	const mailService = new MailService({ schema });
 	const projectService = new ItemsService('project', {
@@ -369,13 +368,14 @@ module.exports = async function registerEndpoint(router, app) {
 		return response.data;
 	}
 
+	
 	//computer stocklist
 	router.get("/exportassetscomputer", async (req, res) => {
 		let warehouse = req.query.warehouse;
-		let sql1 = `select DISTINCT asset_id,sum(quantity) as quantity, project_id,asset_id,asset_id_nl,serial_number,UPPER(model) as model,UPPER(processor) as processor,UPPER(grade) as grade,hdd, asset_type,form_factor,"Part_No",graphic_card,hdd,manufacturer,battery, complaint,keyboard,model,pallet_number,storage_id,processor,memory,screen,target_price,complaint_from_app,UPPER(data_destruction) data_destruction from public."Assets" ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and UPPER(ast.status) like 'IN STOCK' and UPPER(asset_type) = 'COMPUTER' and UPPER(grade) in ('A', 'B', 'C', 'NOB','NEW','AB','A+') and (complaint is null or complaint = '' or complaint not like '%HDD from%' OR complaint not like '%HDDs from%') and ast.date_created < NOW() - INTERVAL '7 days' group by project_id,asset_id,serial_number,UPPER(model),UPPER(processor),UPPER(grade),hdd, asset_type,form_factor,"Part_No",graphic_card,hdd,manufacturer,battery, complaint,keyboard,model,pallet_number,storage_id,processor,memory,screen,target_price,UPPER(data_destruction)`
+		let sql1 = `select DISTINCT asset_id,sum(quantity) as quantity, project_id,asset_id,asset_id_nl,serial_number,UPPER(model) as model,UPPER(processor) as processor,UPPER(grade) as grade,hdd, asset_type,form_factor,"Part_No",graphic_card,hdd,manufacturer,battery, complaint,keyboard,model,pallet_number,storage_id,processor,memory,screen,target_price,complaint_from_app,UPPER(data_destruction) data_destruction from public."Assets" ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and UPPER(ast.status) like 'IN STOCK' and UPPER(asset_type) = 'COMPUTER' and UPPER(grade) in ('A', 'B', 'C', 'NOB','NEW','AB','A+') and (complaint is null or complaint = '' or complaint not like '%HDD from%' OR complaint not like '%HDDs from%') and ast.date_created < NOW() - INTERVAL '7 days' group by project_id,asset_id,serial_number,UPPER(model),UPPER(processor),UPPER(grade),hdd, asset_type,form_factor,"Part_No",graphic_card,hdd,manufacturer,battery, complaint,keyboard,model,pallet_number,storage_id,processor,memory,screen,target_price,UPPER(data_destruction)  order by asset_id desc`
 		if (!req.query.action) {
 			//This is for stocklist
-			sql1 = `select project_id,asset_id,asset_id_nl,asset_type,form_factor,manufacturer,UPPER(model) as model,serial_number,UPPER(processor) as processor,memory,hdd,graphic_card,battery,keyboard,UPPER(grade) as grade,complaint,target_price,pallet_number,storage_id,complaint_from_app,UPPER(data_destruction) data_destruction from public."Assets" ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and UPPER(ast.status) like 'IN STOCK' and UPPER(asset_type) = 'COMPUTER' and UPPER(grade) in ('A', 'B', 'C', 'NOB','NEW','AB','A+') and (complaint is null or complaint = '' or complaint not like '%HDD from%' OR complaint not like '%HDDs from%') group by project_id,asset_id,serial_number,UPPER(model),UPPER(processor),UPPER(grade),hdd, asset_type,form_factor,"Part_No",graphic_card,hdd,manufacturer,battery, complaint,keyboard,model,pallet_number,storage_id,processor,memory,screen,target_price,UPPER(data_destruction)`
+			sql1 = `select project_id,asset_id,sum(quantity) as quantity,asset_id_nl,asset_type,form_factor,manufacturer,UPPER(model) as model,serial_number,UPPER(processor) as processor,memory,screen,hdd,graphic_card,battery,keyboard,UPPER(grade) as grade,complaint,target_price,pallet_number,storage_id,complaint_from_app,UPPER(data_destruction) data_destruction from public."Assets" ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and UPPER(ast.status) like 'IN STOCK' and UPPER(asset_type) = 'COMPUTER' and UPPER(grade) in ('A', 'B', 'C', 'NOB','NEW','AB','A+') and (complaint is null or complaint = '' or complaint not like '%HDD from%' OR complaint not like '%HDDs from%') group by project_id,asset_id,serial_number,UPPER(model),UPPER(processor),UPPER(grade),hdd, asset_type,form_factor,"Part_No",graphic_card,hdd,manufacturer,battery, complaint,keyboard,model,pallet_number,storage_id,processor,memory,screen,target_price,UPPER(data_destruction) order by asset_id desc`
 		}
 		await database.raw(sql1)
 			.then(async (response) => {
@@ -417,9 +417,9 @@ module.exports = async function registerEndpoint(router, app) {
 
 	router.get("/exportassetsmobile", async (req, res) => {
 		let warehouse = req.query.warehouse;
-		let sql1 = `select asset_id,asset_id_nl,project_id,asset_type,form_factor,manufacturer,model,imei,serial_number,hdd,battery,grade,complaint,target_price,pallet_number,storage_id,complaint_from_app from public."Assets" ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and LOWER(TRIM(asset_type)) like 'mobile%' and UPPER(ast.status) = 'IN STOCK' and LOWER(data_destruction) = 'erased' and UPPER(grade) in ('A', 'B', 'C', 'NOB','NEW','AB','A+') and ast.date_created < NOW() - INTERVAL '7 days' order by ast.date_created desc`
+		let sql1 = `select asset_id,asset_id_nl,quantity,project_id,asset_type,form_factor,manufacturer,model,imei,serial_number,hdd,battery,grade,complaint,target_price,pallet_number,storage_id,complaint_from_app from public."Assets" ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and LOWER(TRIM(asset_type)) like 'mobile%' and UPPER(ast.status) = 'IN STOCK' and LOWER(data_destruction) = 'erased' and UPPER(grade) in ('A', 'B', 'C', 'NOB','NEW','AB','A+') and ast.date_created < NOW() - INTERVAL '7 days' order by ast.date_created desc`
 		if (!req.query.action) {
-			sql1 = `select project_id,asset_id,asset_id_nl,asset_type,form_factor,manufacturer,model,imei,serial_number,hdd,battery,grade,complaint,target_price,pallet_number,storage_id,complaint_from_app from public."Assets"  ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and LOWER(TRIM(asset_type)) like 'mobile%' and UPPER(ast.status) = 'IN STOCK' and LOWER(data_destruction) = 'erased' and UPPER(grade) in ('A', 'B', 'C', 'NOB','NEW','AB','A+') order by ast.date_created desc`
+			sql1 = `select project_id,asset_id,asset_id_nl,quantity,asset_type,form_factor,manufacturer,model,imei,serial_number,hdd,battery,grade,complaint,target_price,pallet_number,storage_id,complaint_from_app from public."Assets"  ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and LOWER(TRIM(asset_type)) like 'mobile%' and UPPER(ast.status) = 'IN STOCK' and LOWER(data_destruction) = 'erased' and UPPER(grade) in ('A', 'B', 'C', 'NOB','NEW','AB','A+') order by ast.date_created desc`
 		}
 		await database.raw(sql1)
 			.then(async (response) => {
@@ -442,15 +442,9 @@ module.exports = async function registerEndpoint(router, app) {
 						item.complaint = item?.complaint_from_app
 					}
 				})
-
-				// res.send({
-				// 	data: datavalues,
-				// 	status: 200
-				// })
-
-				let sql11 = `select asset_id,asset_id_nl,project_id,asset_type,form_factor,manufacturer,model,imei,serial_number,hdd,battery,grade,complaint,target_price,pallet_number,storage_id,complaint_from_app from public."Assets"  ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and LOWER(TRIM(asset_type)) like 'mobile%' and UPPER(ast.status) = 'IN STOCK' and data_destruction is null and UPPER(grade) in ('NOB','NEW') and ast.date_created < NOW() - INTERVAL '7 days' order by ast.date_created desc`
+				let sql11 = `select asset_id,asset_id_nl,quantity,project_id,asset_type,form_factor,manufacturer,model,imei,serial_number,hdd,battery,grade,complaint,target_price,pallet_number,storage_id,complaint_from_app from public."Assets"  ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and LOWER(TRIM(asset_type)) like 'mobile%' and UPPER(ast.status) = 'IN STOCK' and data_destruction is null and UPPER(grade) in ('NOB','NEW') and ast.date_created < NOW() - INTERVAL '7 days' order by ast.date_created desc`
 				if (!req.query.action) {
-					sql11 = `select project_id,asset_id,asset_id_nl,asset_type,form_factor,manufacturer,model,imei,serial_number,hdd,battery,grade,complaint,target_price,pallet_number,storage_id,complaint_from_app from public."Assets"  ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and LOWER(TRIM(asset_type)) like 'mobile%' and UPPER(ast.status) = 'IN STOCK' and data_destruction is null and UPPER(grade) in ( 'NOB','NEW') order by ast.date_created desc`
+					sql11 = `select project_id,asset_id,asset_id_nl,quantity,asset_type,form_factor,manufacturer,model,imei,serial_number,hdd,battery,grade,complaint,target_price,pallet_number,storage_id,complaint_from_app from public."Assets"  ast INNER JOIN public.project prj on prj.id = ast.project_id and prj.warehouse = '${warehouse}' and LOWER(TRIM(asset_type)) like 'mobile%' and UPPER(ast.status) = 'IN STOCK' and data_destruction is null and UPPER(grade) in ( 'NOB','NEW') order by ast.date_created desc`
 				}
 				await database.raw(sql11)
 					.then(async (response) => {
@@ -1248,7 +1242,7 @@ module.exports = async function registerEndpoint(router, app) {
 		let prjData = (req.body);
 		let emails = []
 		const filename = `product report - ${prjData.id}.xlsx`;
-		let workbook = new Excel.Workbook();
+		let workbook = new ExcelJS.Workbook();
 		let worksheet = workbook.addWorksheet(`Product report - ${prjData.id}`);
 		worksheet.columns = excelcolumns;
 		let prodUsers = `SELECT distinct b.email FROM public.project_product_report_users a, public.directus_users b where a.project_users_id = b.id and project_id = ${prjData.id}`;
