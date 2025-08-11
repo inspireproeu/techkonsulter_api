@@ -67,7 +67,9 @@ module.exports = async function registerHook({ filter, action }, app) {
 	const asset_type_service = new ItemsService('AssetType', {
 		schema
 	});
-
+	const order_module_service = new ItemsService('order_module', {
+		schema
+	});
 	const ServiceUnavailableException = app.exceptions.ServiceUnavailableException;
 	const _ = require('lodash');
 
@@ -825,6 +827,39 @@ module.exports = async function registerHook({ filter, action }, app) {
 				query = `and imei = '${data.imei}'`
 			} else {
 				query = `and (imei = '0' or imei = '' or imei is null)`
+			}
+			if (data.order_number) {
+				const assetResult = await assetsService.readByQuery({
+					fields: ["sold_price", "quantity"],
+					aggregate: {
+						sum: ['sold_price', 'quantity']
+					},
+					filter: {
+						order_number: {
+							_eq: data.order_number
+						},
+						sold_price: {
+							_nnull: true
+						}
+					},
+				});
+				console.log("assetResult", assetResult[0].sum.sold_price)
+				if (assetResult?.length > 0 && assetResult[0]?.sum?.sold_price) {
+					let obj = {
+						asset_order_value: assetResult[0]?.sum?.sold_price,
+						no_of_assets: assetResult[0]?.sum?.quantity
+					}
+					return await order_module_service.updateOne(data.order_number,
+						obj
+					).then((response1) => {
+						// res.json(response);
+						console.log("order number updated success", response1)
+
+					}).catch((error1) => {
+						console.log("order number failed to update.", error1)
+					});
+				}
+
 			}
 			// let getsql = `select asset_id from public."Assets" where serial_number = '${data.serial_number}' ${query}`;
 			// await database.raw(getsql)
@@ -1985,9 +2020,9 @@ module.exports = async function registerHook({ filter, action }, app) {
 		}
 	}
 
-	async function create_asset_type(data){
+	async function create_asset_type(data) {
 		const asset_type = await asset_type_service.readByQuery({
-			fields: ["Asset_Name","formfactor"],
+			fields: ["Asset_Name", "formfactor"],
 			filter: {
 				asset_type: {
 					_eq: data.asset_type

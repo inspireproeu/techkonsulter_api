@@ -49,26 +49,26 @@ module.exports = async function registerHook(hooktypes, app) {
             });
     })
     //-----------------------------------
-    cron.schedule('*/35 * * * *', async () => {
-        try {
-            request(certusOptionsEq(0, 'eq'), async function (error, response1) {
-                if (error) {
-                    // res.status("500").send(error);
-                    console.log("error certus", error)
-                } else {
-                    // return
-                    console.log("certus data === >", JSON.parse(response1.body).length)
-                    if (response1.body && JSON.parse(response1.body).length > 0) {
-                        offset += JSON.parse(response1.body).length;
+    // cron.schedule('*/35 * * * *', async () => {
+    //     try {
+    //         request(certusOptionsEq(0, 'eq'), async function (error, response1) {
+    //             if (error) {
+    //                 // res.status("500").send(error);
+    //                 console.log("error certus", error)
+    //             } else {
+    //                 // return
+    //                 console.log("certus data === >", JSON.parse(response1.body).length)
+    //                 if (response1.body && JSON.parse(response1.body).length > 0) {
+    //                     offset += JSON.parse(response1.body).length;
 
-                        await insertCertusData(response1.body, 1000)
-                    }
-                }
-            });
-        } catch (err) {
-            throw new ServiceUnavailableException(error);
-        }
-    })
+    //                     await insertCertusData(response1.body, 1000)
+    //                 }
+    //             }
+    //         });
+    //     } catch (err) {
+    //         throw new ServiceUnavailableException(error);
+    //     }
+    // })
 
 
 
