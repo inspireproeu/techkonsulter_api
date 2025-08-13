@@ -756,6 +756,19 @@ module.exports = async function registerHook({ filter, action }, app) {
 					input.status = 'IN STOCK'
 				}
 			}
+			if(input.order_number){
+				const getOrderNumber = await order_module_service.readByQuery({
+					fields: ["order_number"],
+					filter: {
+						visma_order_number: {
+							_eq: input.order_number
+						}
+					},
+				});
+				if(getOrderNumber?.length >0){
+					input.order_number = getOrderNumber[0].visma_order_number
+				}
+			}
 			return input
 		};
 		return input;
@@ -843,7 +856,6 @@ module.exports = async function registerHook({ filter, action }, app) {
 						}
 					},
 				});
-				console.log("assetResult", assetResult[0].sum.sold_price)
 				if (assetResult?.length > 0 && assetResult[0]?.sum?.sold_price) {
 					let obj = {
 						asset_order_value: assetResult[0]?.sum?.sold_price,
@@ -854,7 +866,6 @@ module.exports = async function registerHook({ filter, action }, app) {
 					).then((response1) => {
 						// res.json(response);
 						console.log("order number updated success", response1)
-
 					}).catch((error1) => {
 						console.log("order number failed to update.", error1)
 					});
