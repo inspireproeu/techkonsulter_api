@@ -756,18 +756,19 @@ module.exports = async function registerHook({ filter, action }, app) {
 					input.status = 'IN STOCK'
 				}
 			}
-			
 			if(input.order_number){
 				const getOrderNumber = await order_module_service.readByQuery({
 					fields: ["order_number"],
 					filter: {
 						visma_order_number: {
-							_eq: input.order_number
+							_icontains: input.order_number.toString()
 						}
 					},
 				});
 				if(getOrderNumber?.length >0){
-					input.order_number = getOrderNumber[0].visma_order_number
+					input.order_number = getOrderNumber[0].order_number
+				}else{
+					delete input.order_number;
 				}
 			}
 			return input
