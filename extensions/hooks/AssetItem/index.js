@@ -756,6 +756,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 					input.status = 'IN STOCK'
 				}
 			}
+			
 			if(input.order_number){
 				const getOrderNumber = await order_module_service.readByQuery({
 					fields: ["order_number"],
