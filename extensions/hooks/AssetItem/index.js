@@ -867,7 +867,6 @@ module.exports = async function registerHook({ filter, action }, app) {
 							}
 						},
 					});
-					console.log("getOrderNumber",getOrderNumber)
 					if (getOrderNumber?.length > 0) {
 						let obj = {
 							asset_order_value: assetResult[0]?.sum?.sold_price,
