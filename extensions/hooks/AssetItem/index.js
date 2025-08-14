@@ -756,7 +756,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 					input.status = 'IN STOCK'
 				}
 			}
-			if(input.sold_order_nr){
+			if (input.sold_order_nr) {
 				const getOrderNumber = await order_module_service.readByQuery({
 					fields: ["order_number"],
 					filter: {
@@ -765,9 +765,9 @@ module.exports = async function registerHook({ filter, action }, app) {
 						}
 					},
 				});
-				if(getOrderNumber?.length >0){
+				if (getOrderNumber?.length > 0) {
 					input.order_number = getOrderNumber[0].order_number
-				}else{
+				} else {
 					delete input.order_number;
 				}
 			}
@@ -859,18 +859,31 @@ module.exports = async function registerHook({ filter, action }, app) {
 					},
 				});
 				if (assetResult?.length > 0 && assetResult[0]?.sum?.sold_price) {
-					let obj = {
-						asset_order_value: assetResult[0]?.sum?.sold_price,
-						no_of_assets: assetResult[0]?.sum?.quantity
-					}
-					return await order_module_service.updateOne(data.order_number,
-						obj
-					).then((response1) => {
-						// res.json(response);
-						console.log("order number updated success", response1)
-					}).catch((error1) => {
-						console.log("order number failed to update.", error1)
+					const getOrderNumber = await order_module_service.readByQuery({
+						fields: ["order_number"],
+						filter: {
+							order_ref: {
+								_icontains: data.sold_order_nr.toString()
+							}
+						},
 					});
+					console.log("getOrderNumber",getOrderNumber)
+					if (getOrderNumber?.length > 0) {
+						let obj = {
+							asset_order_value: assetResult[0]?.sum?.sold_price,
+							no_of_assets: assetResult[0]?.sum?.quantity
+						}
+						return await order_module_service.updateOne(getOrderNumber[0].order_number,
+							obj
+						).then((response1) => {
+							// res.json(response);
+							console.log("order number updated success", response1)
+						}).catch((error1) => {
+							console.log("order number failed to update.", error1)
+						});
+					}
+
+
 				}
 
 			}
