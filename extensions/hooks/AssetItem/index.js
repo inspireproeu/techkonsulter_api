@@ -756,12 +756,12 @@ module.exports = async function registerHook({ filter, action }, app) {
 					input.status = 'IN STOCK'
 				}
 			}
-			if(input.order_number){
+			if(input.sold_order_nr){
 				const getOrderNumber = await order_module_service.readByQuery({
 					fields: ["order_number"],
 					filter: {
-						visma_order_number: {
-							_icontains: input.order_number.toString()
+						order_ref: {
+							_icontains: input.sold_order_nr.toString()
 						}
 					},
 				});
@@ -843,15 +843,15 @@ module.exports = async function registerHook({ filter, action }, app) {
 			} else {
 				query = `and (imei = '0' or imei = '' or imei is null)`
 			}
-			if (data.order_number) {
+			if (data.sold_order_nr) {
 				const assetResult = await assetsService.readByQuery({
 					fields: ["sold_price", "quantity"],
 					aggregate: {
 						sum: ['sold_price', 'quantity']
 					},
 					filter: {
-						order_number: {
-							_eq: data.order_number
+						sold_order_nr: {
+							_icontains: data.sold_order_nr.toString()
 						},
 						sold_price: {
 							_nnull: true
