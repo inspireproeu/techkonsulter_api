@@ -1183,7 +1183,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 			let handling = values1?.handling ? Number(values1.handling) : 0
 			let other = values1?.other ? Number(values1.other) : 0
 			let software = projectValues.software || 0;
-			let commision_percentage = projectValues.commision_percentage + 5;
+			let commision_percentage = projectValues.commision_percentage;
 			let kickback_percentage = projectValues.kickback_percentage || 0;
 
 			let order_commission = 0
