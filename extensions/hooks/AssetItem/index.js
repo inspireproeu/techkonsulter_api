@@ -1026,7 +1026,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 						});
 					}
 				}
-				if (fields?.status.toLowerCase() === 'recycled') {
+				if (fields?.status.toLowerCase() === 'to be recycled') {
 					const assetList = await assetsService.readByQuery({
 						fields: ["asset_id", "model", "asset_type", "form_factor", "manufacturer", "Part_No"],
 						filter: {
@@ -1035,7 +1035,8 @@ module.exports = async function registerHook({ filter, action }, app) {
 								{ "Part_No": { _nnull: true } },
 							],
 							_and: [
-								{ "Part_No": { _icontains: `${fields.part_no}` } }
+								{ "Part_No": { _icontains: `${fields.part_no}` } },
+								{ "status": { _eq: `IN STOCK` } }
 							]
 						},
 						limit: -1
