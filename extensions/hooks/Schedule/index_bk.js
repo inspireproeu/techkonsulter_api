@@ -120,16 +120,16 @@ module.exports = async function registerHook(hooktypes, app) {
     let dateFrom2 = moment(dateFrom1).subtract(6, 'd').format('YYYY-MM-DD');
     let dateFrom3 = moment(dateFrom2).subtract(4, 'd').format('YYYY-MM-DD');
 
-    // cron.schedule("*/10 * * * *", async (req, res) => {
-    //     fetchComputerCertusRangeValues(dateTo, dateFrom)
-    // });
+    cron.schedule("*/55 * * * *", async (req, res) => {
+        fetchRecordsComputer()
+        //fetchComputerCertusRangeValues(dateTo, dateFrom)
+    });
     // console.log("dateFrom1",dateFrom1)
     // console.log("dateFrom2",dateFrom2)
     // fetchComputerCertusRangeValues(dateTo, dateFrom)
     cron.schedule("0 */1 * * *", async (req, res) => {
-        // fetchComputerCertusRangeValues(dateFrom, dateFrom1)
+        //fetchComputerCertusRangeValues(dateFrom, dateFrom1)
     });
-    //fetchComputerCertusRangeValues(dateFrom, dateFrom1)
     // cron.schedule("*/30 * * * *", async (req, res) => {
     //     fetchComputerCertusRangeValues(dateFrom1, dateFrom2)
     // });
@@ -153,7 +153,7 @@ module.exports = async function registerHook(hooktypes, app) {
     }
 
     cron.schedule("0 */2 * * *", async (req, res) => {
-        fetchMobileCertusRangeValues(dateTo, dateFrom)
+       // fetchMobileCertusRangeValues(dateTo, dateFrom)
     });
     // fetchMobileCertusRangeValues(dateFrom, dateFrom1)
     // cron.schedule("*/25 * * * *", async (req, res) => {
@@ -193,20 +193,20 @@ module.exports = async function registerHook(hooktypes, app) {
             // console.log("isoDate",isoDate)
             const assetLists = await assetsService.readByQuery({
                 fields: ["asset_id", "asset_type", "grade", "project_id", "date_created"],
-                limit: -1,
+                limit: 200,
                 filter: {
                     _and: [
                         {
-                            status: {
-                                _null: true
+                            asset_id: {
+                                _in: [249859,249857,249855,241553,235120,249837,249835,249836,249817,249159,249158,249845,249858,249856,253018,250593,250115,250303,250296,246451,250317,250327,250328,250312,231194,231202,231217,231135,231138,231136,231159,231188,231158,231160,3152427,1535438,3170678,1136616,965684,2418191,2421894,3138396,231224,3137635,3138391,3138401]
                             },
                         },
-                        {
-                            _or: [
-                                { asset_type: { _null: true } },
-                                //{ processor: { _null: true } },
-                            ]
-                        }
+                        // {
+                        //     _or: [
+                        //         { asset_type: { _null: true } },
+                        //         //{ processor: { _null: true } },
+                        //     ]
+                        // }
                     ]
                 },
                 sort: ['-date_created'],
@@ -890,8 +890,9 @@ module.exports = async function registerHook(hooktypes, app) {
                             }
                             await insertAssetsSingle(assetsData[i])
 
-                        }).catch((error1) => {
+                        }).catch(async (error1) => {
                             // res = []
+                            await insertAssetsSingle(assetsData[i])
                             console.log("errrrr111", error1)
                         });
                     } else {
