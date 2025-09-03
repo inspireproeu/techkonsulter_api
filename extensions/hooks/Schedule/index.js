@@ -129,7 +129,7 @@ module.exports = async function registerHook(hooktypes, app) {
     //fetchComputerCertusRangeValues(dateTo, dateFrom)
     //fetchComputerCertusRangeValues(dateFrom2, dateFrom3)
     cron.schedule("0 */1 * * *", async (req, res) => {
-        fetchComputerCertusRangeValues(dateFrom, dateFrom1)
+        //fetchComputerCertusRangeValues(dateFrom, dateFrom1)
     });
     // cron.schedule("*/30 * * * *", async (req, res) => {
     //     fetchComputerCertusRangeValues(dateFrom1, dateFrom2)
@@ -154,7 +154,7 @@ module.exports = async function registerHook(hooktypes, app) {
     }
 
     cron.schedule("0 */2 * * *", async (req, res) => {
-       fetchMobileCertusRangeValues(dateTo, dateFrom)
+      // fetchMobileCertusRangeValues(dateTo, dateFrom)
     });
     //fetchMobileCertusRangeValues(dateFrom, dateFrom1)
     // cron.schedule("*/25 * * * *", async (req, res) => {
@@ -863,14 +863,14 @@ module.exports = async function registerHook(hooktypes, app) {
             for (let i = 0; i <= assetsData.length; i++) {
                 if (assetsData[i]) {
                     // console.log("assetsData[i]).asset_id", mapCertusData(assetsData[i]).asset_id)
-                    let device_serial_number = assetsData[i]["cewm.ce.report.erasure.device.serial.number"] || ""
+                    let serial_number = assetsData[i]["cewm.ce.report.hardware.system.serial.number"] || ""
                     let doc_id = assetsData[i]["cewm.ce.report.document.id"] || "";
                     let status = assetsData[i]["cewm.ce.report.erasure.status"] || "";
                     const certus = await certusService.readByQuery({
                         fields: ["id"],
                         filter: {
-                            device_serial_number: {
-                                _eq: device_serial_number
+                            serial_number: {
+                                _eq: serial_number
                             },
                             document_id: {
                                 _eq: doc_id
