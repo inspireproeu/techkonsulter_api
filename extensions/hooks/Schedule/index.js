@@ -125,7 +125,7 @@ module.exports = async function registerHook(hooktypes, app) {
         //fetchComputerCertusRangeValues(dateTo, dateFrom)
     });
     // console.log("dateFrom1",dateFrom1)
-    console.log(dateTo,"dateFrom2",dateFrom)
+    // console.log(dateTo,"dateFrom2",dateFrom)
     //fetchComputerCertusRangeValues(dateTo, dateFrom)
     //fetchComputerCertusRangeValues(dateFrom2, dateFrom3)
     cron.schedule("0 */1 * * *", async (req, res) => {
@@ -196,7 +196,7 @@ module.exports = async function registerHook(hooktypes, app) {
                     _and: [
                         // {
                         //     asset_id: {
-                        //         _in: [256748,256731]
+                        //         _in: ["257467","255751","257061", "258031"]
                         //     },
                         // },
                         {
@@ -903,7 +903,7 @@ module.exports = async function registerHook(hooktypes, app) {
                         let sql = `update public."Certus" set project_id = '${projectID}', 
                                             asset_id = '${mapCertusData(assetsData[i]).asset_id}', keyboard = '${mapCertusData(assetsData[i]).keyboard}', complaint = '${mapCertusData(assetsData[i]).complaint}',
                                             grade = '${mapCertusData(assetsData[i]).grade}' where
-                                            device_serial_number = '${device_serial_number}' and document_id = '${doc_id}'`
+                                            serial_number = '${serial_number}' and document_id = '${doc_id}'`
                         database.raw(sql)
                             .then(async (results) => {
 
