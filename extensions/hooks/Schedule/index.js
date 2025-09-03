@@ -226,7 +226,6 @@ module.exports = async function registerHook(hooktypes, app) {
                                 offset += JSON.parse(response1.body).length;
                                 await insertCertusData(response1.body, 10000)
                             } else {
-                                console.log("mobile elsee=====> ")
                                 request(certusOptionsMobileEq_1(obj.asset_id), async function (error, response1) {
                                     if (error) {
                                         // res.status("500").send(error);
