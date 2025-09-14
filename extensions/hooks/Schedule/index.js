@@ -121,7 +121,7 @@ module.exports = async function registerHook(hooktypes, app) {
     let dateFrom3 = moment(dateFrom2).subtract(4, 'd').format('YYYY-MM-DD');
 
     cron.schedule("*/55 * * * *", async (req, res) => {
-        fetchRecordsComputer()
+       // fetchRecordsComputer()
         //fetchComputerCertusRangeValues(dateTo, dateFrom)
     });
     // console.log("dateFrom1",dateFrom1)
