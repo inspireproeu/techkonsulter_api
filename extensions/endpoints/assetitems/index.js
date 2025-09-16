@@ -303,7 +303,9 @@ module.exports = async function registerEndpoint(router, app) {
 				result = await ASSIGNSTOCKLISTVALUES(result, 'general');
 					if(req.query.download){
 						const filename = `${req.query.type}-${req.query.warehouse}-stocklist.xlsx`;
-						const filePath = await createExcelFile(result, filename);
+						let action = `general`
+						const filePath = await createExcelFile(result, filename, action, warehouse);
+
 						try {
 							const uploadResult = await uploadFileToDirectus(filePath, APIURL);
 							res.send({
@@ -334,16 +336,44 @@ module.exports = async function registerEndpoint(router, app) {
 			});
 	});
 
-	async function createExcelFile(data, filename) {
+	async function createExcelFile(data, filename, action, warehouse) {
 		const workbook = new ExcelJS.Workbook();
 		const worksheet = workbook.addWorksheet('Data');
-
+		let excelCoumns = [];
+			if (action === 'general') {
+				excelCoumns = ["project_id", "asset_id", "asset_id_nl", "asset_type", "form_factor", "part_no", "quantity", "manufacturer", "model", "imei", "serial_number", "processor", "memory", "hdd", "graphic_card", "battery", "keyboard", "screen", "grade", "complaint", "target_price", "pallet_number", "storage_id"];
+			} else if (action === 'mobile-se' || action === 'mobile-nl') {
+				excelCoumns = ["project_id", "asset_id", "asset_id_nl", "asset_type", "form_factor", "manufacturer","quantity", "model", "imei", "serial_number", "hdd", "battery", "grade", "complaint", "target_price", "pallet_number", "storage_id"];
+			} else if (action === 'computer-se' || action === 'computer-nl') {
+				excelCoumns = ["project_id", "asset_id", "asset_id_nl", "asset_type", "form_factor", "manufacturer","quantity", "model", "serial_number", "processor", "memory", "hdd", "graphic_card", "battery", "keyboard", "grade", "complaint", "target_price", "pallet_number", "storage_id"];
+			}
+			if(warehouse === 'SE01') {
+				excelCoumns = excelCoumns.filter((item) => item !== "asset_id_nl");
+			}
 		// Add header row (keys of first object)
-		worksheet.columns = Object.keys(data[0]).map(key => ({
-			header: key,
-			key: key,
-			width: 20
-		}));
+
+		let header = [];
+		let headerName = [];
+		excelCoumns.map((val) => {
+			let width = 16
+			if (val) {
+				header.push({ key: val, width: width });
+				headerName.push(val);
+
+			}
+		})
+		worksheet.getRow(1).values = headerName;
+		worksheet.columns = header // Asign header
+		// console.log("header", header)
+		// console.log("data", data)
+		// currentRowData.forEach(function (item, index) {
+		//     worksheet.addRow(item)
+		// })
+		// worksheet.columns = Object.keys(data[0]).map(key => ({
+		// 	header: key,
+		// 	key: key,
+		// 	width: 20
+		// }));
 
 		// Add rows
 		worksheet.addRows(data);
@@ -384,7 +414,11 @@ module.exports = async function registerEndpoint(router, app) {
 				// Send file
 				if(req.query.download) {
 					const filename = `${req.query.type}-${req.query.warehouse}-stocklist.xlsx`;
-					const filePath = await createExcelFile(result, filename);
+					let action = 'computer-se'
+					if(warehouse === 'NL01') {
+						action = 'computer-nl'
+					}
+					const filePath = await createExcelFile(result, filename, action, warehouse);
 					try {
 						const uploadResult = await uploadFileToDirectus(filePath, APIURL);
 						res.send({
@@ -469,9 +503,12 @@ module.exports = async function registerEndpoint(router, app) {
 						})
 						if(req.query.download){
 							const filename = `${req.query.type}-${req.query.warehouse}-stocklist.xlsx`;
-							let data = [...result, ...result2]
-							const filePath = await createExcelFile(data, filename);
-
+							let data = [...result, ...result2];
+							let action = 'mobile-se'
+							if(warehouse === 'NL01') {
+								action = 'mobile-nl'
+							}
+							const filePath = await createExcelFile(data, filename, action, warehouse);
 							try {
 								const uploadResult = await uploadFileToDirectus(filePath, APIURL);
 								res.send({
