@@ -913,7 +913,9 @@ module.exports = async function registerHook({ filter, action }, app) {
 			// 	await UPDATEESTIMATEVALUEMOBILE(assetResult[0], database, estimate_values_service)
 			// }
 		};
+
 		if (input.collection === 'project' && data.id) {
+			console.log("dataaaaaa", data)
 			if (data.project_status !== 'CLOSED' || data.project_type === 'PURCHASE') {
 				await updateProjectFinance(data.id)
 			}
@@ -1134,14 +1136,14 @@ module.exports = async function registerHook({ filter, action }, app) {
 			await updateProjectFinance(data.project_id)
 		}
 		if (input.collection === 'project') {
-			await updateProjectFinance(data.id)
+			await updateProjectFinance(data.id, 'create')
 		}
 		if (input.collection === 'part_numbers') {
 			await create_asset_type(data)
 		}
 	});
 
-	async function updateProjectFinance(project_id) {
+	async function updateProjectFinance(project_id, action) {
 		project_id = typeof project_id === 'object' ? project_id.id : project_id;
 		if (!project_id) {
 			return
@@ -1183,17 +1185,22 @@ module.exports = async function registerHook({ filter, action }, app) {
 			let handling = values1?.handling ? Number(values1.handling) : 0
 			let other = values1?.other ? Number(values1.other) : 0
 			let software = projectValues.software || 0;
-			let commision_percentage = projectValues.commision_percentage + 5;
+			let commision_percentage = projectValues.commision_percentage;
 			let kickback_percentage = projectValues.kickback_percentage || 0;
-
+			console.log("action", action)
+			console.log("projectValues", projectValues)
+			console.log("commision_percentage", commision_percentage)
 			let order_commission = 0
-			if (Number(projectValues.order_commission)) {
-				order_commission = projectValues.order_commission
-			} else if (!projectValues.commision_percentage && projectValues.order_commission) {
+			if (action) {
+				//this part will allow only for create action
+				if (projectValues.commision_percentage && !projectValues.order_commission) {
+					order_commission = projectValues.commision_percentage + 5
+				}
+			} else {
 				order_commission = projectValues.order_commission;
-			} else if (!projectValues.commision_percentage && !projectValues.order_commission) {
-				order_commission = projectValues.order_commission = 15
 			}
+
+			console.log("order_commission", order_commission)
 
 			//Set order_commission is 0 if project type as purchase
 
@@ -2034,7 +2041,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 		if (partnerData.length > 0 && partnerData[0]?.commission) {
 			return await projectService.updateOne(data.id,
 				{
-					commision_percentage: partnerData[0]?.commission
+					commision_percentage: partnerData[0]?.commission + 5
 				}
 			).then((response1) => {
 				// res.json(response);
