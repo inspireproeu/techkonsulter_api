@@ -1127,18 +1127,16 @@ module.exports = async function registerHook({ filter, action }, app) {
 			if (data.id) {
 				await sendMail('create', data, data.id)
 				await CREATEACCESS(data, projectService, usersservice);
-				await updatePartnerCommission(data)
+				await updatePartnerCommission(data, 'create')
 			}
 		};
 		if (input.collection === 'project_finance') {
 			if (data.type) {
 				data.type = data.type.toLowerCase()
 			}
-			await updateProjectFinance(data.project_id)
+			await updateProjectFinance(data.project_id,)
 		}
-		if (input.collection === 'project') {
-			await updateProjectFinance(data.id, 'create')
-		}
+
 		if (input.collection === 'part_numbers') {
 			await create_asset_type(data)
 		}
@@ -1188,9 +1186,6 @@ module.exports = async function registerHook({ filter, action }, app) {
 			let software = projectValues.software || 0;
 			let commision_percentage = projectValues.commision_percentage;
 			let kickback_percentage = projectValues.kickback_percentage || 0;
-			console.log("action", action)
-			console.log("projectValues", projectValues)
-			console.log("commision_percentage", commision_percentage)
 			let order_commission = 0
 			if (action) {
 				//this part will allow only for create action
@@ -1200,8 +1195,6 @@ module.exports = async function registerHook({ filter, action }, app) {
 			} else {
 				order_commission = projectValues.order_commission;
 			}
-
-			console.log("order_commission", order_commission)
 
 			//Set order_commission is 0 if project type as purchase
 
@@ -2026,7 +2019,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 
 	//update partner commission for project commission percentage 
 
-	async function updatePartnerCommission(data) {
+	async function updatePartnerCommission(data, action) {
 		if (!data.partner) {
 			return
 		}
@@ -2038,19 +2031,24 @@ module.exports = async function registerHook({ filter, action }, app) {
 				}
 			},
 		});
-
-		if (partnerData.length > 0 && partnerData[0]?.commission) {
-			return await projectService.updateOne(data.id,
-				{
-					commision_percentage: partnerData[0]?.commission + 5
-				}
-			).then((response1) => {
-				// res.json(response);
-				console.log("project commission updateee success", response1)
-			}).catch((error1) => {
-				console.log("project commission updateee errrrr", field.asset_id)
-			});
+		let obj = {
+			commision_percentage: 20 // 15 is default and 5% extra
 		}
+		if (partnerData.length > 0 && partnerData[0]?.commission) {
+			obj = {
+				commision_percentage: partnerData[0]?.commission + 5
+			}	
+		}
+		return await projectService.updateOne(data.id, obj).then(async (response1) => {
+			// res.json(response);
+			console.log("project commission updateee success", response1)
+			if(action){
+				await updateProjectFinance(data.id, 'create')
+			}
+		}).catch((error1) => {
+			console.log("project commission updateee errrrr", field.asset_id)
+		});
+
 	}
 
 	async function create_asset_type(data) {
