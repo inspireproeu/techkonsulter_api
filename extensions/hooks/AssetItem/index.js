@@ -2032,11 +2032,11 @@ module.exports = async function registerHook({ filter, action }, app) {
 			},
 		});
 		let obj = {
-			commision_percentage: 20 // 15 is default and 5% extra
+			commision_percentage: 15 // 15 is default and 5% extra
 		}
 		if (partnerData.length > 0 && partnerData[0]?.commission) {
 			obj = {
-				commision_percentage: partnerData[0]?.commission + 5
+				commision_percentage: partnerData[0]?.commission
 			}	
 		}
 		return await projectService.updateOne(data.id, obj).then(async (response1) => {
