@@ -117,19 +117,16 @@ module.exports = async function registerEndpoint(router, app) {
 	router.get("/pricingassets", async (req, res) => {
 		// let query = 
 		// let sql1 = `select asset_id,grade,status,asset_type,manufacturer,model,processor,part_no,a_grade_values,default_grade,grade_last_update from public."Assets" where UPPER(asset_type) = '${req.query.asset_type}' ${req.query.manufacturer ? 'and UPPER(manufacturer) like' + req.query.manufacturer : '' } and UPPER(processor) like '${req.query.processor}' and UPPER(model) like '${req.query.model}' and UPPER(status) = 'IN STOCK'`
-		let manufacturerQuery = `and manufacturer IS NULL`
-		if (req.query.manufacturer) {
-			manufacturerQuery = `and UPPER(manufacturer) like '${req.query.manufacturer}'`
-		}
-		let processorQuery = `and processor IS NULL`
+
+		let processorQuery = ``
 		if (req.query.processor) {
 			processorQuery = `and UPPER(processor) like '${req.query.processor}'`
 		}
-		let modelQuery = `and model IS NULL`
+		let modelQuery = ``
 		if (req.query.model) {
 			modelQuery = `and UPPER(model) like '${req.query.model}'`
 		}
-		let Part_NoQuery = `and "Part_No" IS NULL`
+		let Part_NoQuery = ``
 		if (req.query.Part_No) {
 			Part_NoQuery = `and UPPER("Part_No") like '${req.query.Part_No}'`
 		}
