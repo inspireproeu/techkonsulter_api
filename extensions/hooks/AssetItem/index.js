@@ -1026,7 +1026,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 			if (data.id) {
 				await sendMail('create', data, data.id)
 				await CREATEACCESS(data, projectService, usersservice);
-				await updatePartnerCommission(data)
+				await updatePartnerCommission(data, 'create')
 			}
 		};
 		if (input.collection === 'project_finance') {
@@ -1040,7 +1040,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 		}
 	});
 
-	async function updateProjectFinance(project_id) {
+	async function updateProjectFinance(project_id, action = null) {
 		project_id = typeof project_id === 'object' ? project_id.id : project_id;
 		if (!project_id) {
 			return
@@ -1084,14 +1084,14 @@ module.exports = async function registerHook({ filter, action }, app) {
 			let software = projectValues.software || 0;
 			let commision_percentage = projectValues.commision_percentage;
 			let kickback_percentage = projectValues.kickback_percentage || 0;
-
 			let order_commission = 0
-			if (Number(projectValues.order_commission)) {
-				order_commission = projectValues.order_commission
-			} else if (!projectValues.commision_percentage && projectValues.order_commission) {
-				order_commission = projectValues.order_commission;
-			} else if (!projectValues.commision_percentage && !projectValues.order_commission) {
-				order_commission = projectValues.order_commission = 15
+			if (action) {
+				//this part will allow only for create action
+				if (projectValues.commision_percentage && !projectValues.order_commission) {
+					order_commission = projectValues.commision_percentage + 5 // add default 5 %
+				}
+			} else {
+				order_commission = projectValues.order_commission || 15;
 			}
 
 			//Set order_commission is 0 if project type as purchase
@@ -1917,7 +1917,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 
 	//update partner commission for project commission percentage 
 
-	async function updatePartnerCommission(data) {
+	async function updatePartnerCommission(data, action) {
 		if (!data.partner) {
 			return
 		}
@@ -1929,18 +1929,23 @@ module.exports = async function registerHook({ filter, action }, app) {
 				}
 			},
 		});
-
-		if (partnerData.length > 0 && partnerData[0]?.commission) {
-			return await projectService.updateOne(data.id,
-				{
-					commision_percentage: partnerData[0]?.commission
-				}
-			).then((response1) => {
-				// res.json(response);
-				console.log("project commission updateee success", response1)
-			}).catch((error1) => {
-				console.log("project commission updateee errrrr", field.asset_id)
-			});
+		let obj = {
+			commision_percentage: 15 // 15 is default and 5% extra
 		}
+		if (partnerData.length > 0 && partnerData[0]?.commission) {
+			obj = {
+				commision_percentage: partnerData[0]?.commission
+			}
+		}
+		return await projectService.updateOne(data.id, obj).then(async (response1) => {
+			// res.json(response);
+			console.log("project commission updateee success", response1)
+			if (action) {
+				await updateProjectFinance(data.id, 'create')
+			}
+		}).catch((error1) => {
+			console.log("project commission updateee errrrr", field.asset_id)
+		});
+
 	}
 };
