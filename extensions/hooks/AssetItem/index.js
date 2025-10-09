@@ -295,7 +295,52 @@ module.exports = async function registerHook({ filter, action }, app) {
 						.catch((error) => {
 							// res.send(500)
 						});
-				}
+				}else {
+                    let types = ['MOBILE','MOBILE DEVICE','MOBILE DEVICES', 'MONITOR', 'COMPUTER']
+                    if (types.includes(input.asset_type)) {
+                        console.log("inside asset type")
+                        let manufacturerQuery = ``
+                        if (input.manufacturer) {
+                            manufacturerQuery = `and UPPER(manufacturer) like '${input.manufacturer}'`
+                        }
+                        let processorQuery = ``
+                        if (input.processor) {
+                            processorQuery = `and UPPER(processor) like '${input.processor}'`
+                        }
+                        let modelQuery = ``
+                        if (input.model) {
+                            modelQuery = `and UPPER(model) like '${input.model}'`
+                        }
+                        let Part_NoQuery = ``
+                        if (input.Part_No) {
+                            Part_NoQuery = `and UPPER("Part_No") like '${input.Part_No}'`
+                        }
+                        let sql = `select action,part_no,status,model,asset_type,form_factor,manufacturer from public.part_numbers where UPPER(asset_type) in ('MOBILE','MOBILE DEVICE','MOBILE DEVICES', 'MONITOR', 'COMPUTER') and part_no is null ${processorQuery} ${modelQuery} ${Part_NoQuery}`;
+                        await database.raw(sql)
+                            .then(async (response) => {
+                                if (response.rows.length === 0) {
+                                    await partnumberService.createOne(
+                                    {
+                                        status: 'draft',
+                                        model: input.model || null,
+                                        asset_type: input.asset_type || null,
+                                        form_factor: input.form_factor || null,
+                                        manufacturer: input.manufacturer || null,
+                                    }
+                                    ).then((response1) => {
+                                        // res.json(response);
+                                        console.log("new part_number created =>", response1)
+                                    }).catch((error1) => {
+                                        console.log("new part numer failed =>", error1)
+                                    });
+                                }
+                            })
+                            .catch((error) => {
+                                // res.send(500)
+                            });
+                    }
+                }
+ 
 				if (input.asset_type) {
 					let query = ''
 					if (input.form_factor) {
