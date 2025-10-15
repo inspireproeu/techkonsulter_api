@@ -952,6 +952,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 			await update_part_number_withassets(input.keys[0])
 		}
 	});
+	
 	async function update_part_number_withassets(id) {
 		try {
 			const partnumber = await partnumberService.readByQuery({
