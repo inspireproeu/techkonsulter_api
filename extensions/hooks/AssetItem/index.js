@@ -949,10 +949,10 @@ module.exports = async function registerHook({ filter, action }, app) {
 			await updateProjectFinance(data.project_id)
 		}
 		if (input.collection === 'part_numbers') {
-			await update_part_number_withassets(input.keys[0])
+			//await update_part_number_withassets(input.keys[0])
 		}
 	});
-	
+
 	async function update_part_number_withassets(id) {
 		try {
 			const partnumber = await partnumberService.readByQuery({
