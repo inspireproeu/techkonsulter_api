@@ -1050,7 +1050,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 						// );
 						assetList.forEach(async (item) => {
 							let obj = {
-								status: 'RECYCLED',
+								status: 'TO BE RECYCLED',
 								part_number_update: 'true'
 							}
 							// console.log("objjj", obj)
