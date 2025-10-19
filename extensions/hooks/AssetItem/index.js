@@ -949,76 +949,9 @@ module.exports = async function registerHook({ filter, action }, app) {
 			await updateProjectFinance(data.project_id)
 		}
 		if (input.collection === 'part_numbers') {
-			//await update_part_number_withassets(input.keys[0])
 		}
 	});
 
-	async function update_part_number_withassets(id) {
-		try {
-			const partnumber = await partnumberService.readByQuery({
-				fields: ["action", "part_no", "status", "model", "asset_type", "form_factor", "manufacturer", 'co2', 'weight'],
-				filter: {
-					id: {
-						_eq: id
-					}
-
-				},
-			});
-
-
-			if (partnumber?.length > 0) {
-				let fields = partnumber[0];
-				if (fields.status === 'published') {
-					const assetList = await assetsService.readByQuery({
-						fields: ["asset_id", "model", "asset_type", "form_factor", "manufacturer", "Part_No"],
-						filter: {
-							_or: [
-								{ "Part_No": { _icontains: 'N/A' } },
-								{ "Part_No": { _nnull: true } },
-							],
-							_and: [
-								{ "Part_No": { _icontains: `${fields.part_no}` } }
-							]
-						},
-						limit: -1
-					});
-
-					if (assetList?.length > 0) {
-						// let selectedAssetIds = assetList.map(
-						// 	(key) => key.asset_id
-						// );
-						assetList.forEach(async (item) => {
-							let obj = {
-								model: fields.model,
-								asset_type: fields.asset_type,
-								manufacturer: fields.manufacturer,
-								form_factor: fields.form_factor,
-								asset_id: item.asset_id,
-								sample_co2: fields.co2,
-								sample_weight: fields.weight,
-								part_number_update: 'true'
-							}
-							// console.log("objjj", obj)
-							// return
-							return await assetsService.updateOne(item.asset_id,
-								obj
-							).then((response1) => {
-								// res.json(response);
-								console.log("asset part number success", response1)
-
-							}).catch((error1) => {
-								console.log("partnumer asset update", error1)
-							});
-						});
-					}
-				}
-			}
-		} catch (error) {
-			console.log("error on part no update", error)
-			throw new ServiceUnavailableException(error);
-		}
-
-	}
 	async function updateAssetIdProjectId(data) {
 		let obj = {};
 		if (data.asset_id) {

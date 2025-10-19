@@ -1,4 +1,4 @@
-const { UPDATEPROJECTFINANCE, NERDFIXBULKUPDATE, CREATENERDFIXHISTORY, UPDATEESTIMATEVALUEMOBILE, UPDATEESTIMATEVALUECOMPUTER } = require('../../Functions');
+const { UPDATEPROJECTFINANCE, NERDFIXBULKUPDATE, CREATENERDFIXHISTORY, UPDATEESTIMATEVALUEMOBILE, UPDATEESTIMATEVALUECOMPUTER, UPDATE_PART_NUMBER_ASSETS } = require('../../Functions');
 const { ASSIGNSTOCKLISTVALUES, removeComplainData, removeComplainData_A_Grade, removeprocessorData, removeModelData } = require('../../Functions/mapvalues');
 const ExcelJS = require('exceljs');
 const fs = require('fs');
@@ -29,6 +29,10 @@ module.exports = async function registerEndpoint(router, app) {
 		schema
 	});
 	const estimate_values_service = new ItemsService('estimate_values_computer', {
+		schema
+	});
+
+	const partnumberService = new ItemsService('part_numbers', {
 		schema
 	});
 
@@ -1735,5 +1739,9 @@ module.exports = async function registerEndpoint(router, app) {
 
 
 	});
-
+	router.post("/updatepartnumber_assets", async (req, res) => {
+		// Part_No
+		let data = (req.body);
+		await UPDATE_PART_NUMBER_ASSETS(data.part_no, partnumberService, assetsService, res);
+	});
 };
