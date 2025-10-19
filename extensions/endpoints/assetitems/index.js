@@ -1742,6 +1742,6 @@ module.exports = async function registerEndpoint(router, app) {
 	router.post("/updatepartnumber_assets", async (req, res) => {
 		// Part_No
 		let data = (req.body);
-		await UPDATE_PART_NUMBER_ASSETS(data.part_no, partnumberService, assetsService, res);
+		await UPDATE_PART_NUMBER_ASSETS(data.part_no, partnumberService, assetsService, res, database);
 	});
 };
