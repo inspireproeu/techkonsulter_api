@@ -1544,31 +1544,37 @@ const mailbox = {
                     const results = [];
                     const errors = [];
                     // Using for...of to handle async/await properly
+                    let assetIds = assetList.map(
+                        (item) => item.asset_id
+                    );
                     for (const item of assetList || []) {
                       try {
                         // Example: Update or process item
-                        let sql = `update public."Assets" 
-                        set model = '${fields.model}', 
-                        asset_type = '${fields.asset_type}',
-                        manufacturer = '${fields.manufacturer}',
-                        form_factor = '${fields.form_factor}',
-                        sample_weight = '${fields.weight}',
-                        sample_co2 = '${fields.co2}'
-                        where asset_id = ${item.asset_id}`
-                        await database.raw(sql);
-                        // let obj = {
-                        //     model: fields.model,
-                        //     asset_type: fields.asset_type,
-                        //     manufacturer: fields.manufacturer,
-                        //     form_factor: fields.form_factor,
-                        //     asset_id: item.asset_id,
-                        //     sample_co2: fields.co2,
-                        //     sample_weight: fields.weight,
-                        //     part_number_update: 'true'
-                        // }
+                        // let sql = `update public."Assets" 
+                        // set model = '${fields.model}', 
+                        // asset_type = '${fields.asset_type}',
+                        // manufacturer = '${fields.manufacturer}',
+                        // form_factor = '${fields.form_factor}',
+                        // sample_weight = '${fields.weight}',
+                        // sample_co2 = '${fields.co2}'
+                        // where asset_id = ${item.asset_id}`
+                        // await database.raw(sql);
+                        let obj = {
+                            model: fields.model,
+                            asset_type: fields.asset_type,
+                            manufacturer: fields.manufacturer,
+                            form_factor: fields.form_factor,
+                            asset_id: item.asset_id,
+                            sample_co2: fields.co2,
+                            sample_weight: fields.weight,
+                            part_number_update: 'true'
+                        }
                         // const updated = await assetsService.updateOne(item.asset_id, obj);
 
-                        results.push({ asset_id: item.asset_id, status: 'success' });
+                        const updated = await assetsService.updateMany(assetIds,
+                            obj
+                        )
+                        results.push({ asset_id: item.asset_id, status: 'success', updated });
                       } catch (err) {
                         console.error(`Error updating item ${item.asset_id}:`, err);
                         errors.push({ asset_id: item.asset_id, status: 'failed', message: err.message });
