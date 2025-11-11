@@ -6,7 +6,8 @@ const { UPDATECOMPLIANTS,
 	UPDATEPROJECTSQL,
 	UPDATEESTIMATEVALUECOMPUTER,
 	UPDATEESTIMATEVALUEMOBILE,
-	CREATEPROJECTIFNEWONE
+	CREATEPROJECTIFNEWONE,
+	UPDATE_PART_NUMBER_ASSETS
 } = require('../../Functions');
 
 module.exports = async function registerHook({ filter, action }, app) {
@@ -949,6 +950,7 @@ module.exports = async function registerHook({ filter, action }, app) {
 			await updateProjectFinance(data.project_id)
 		}
 		if (input.collection === 'part_numbers') {
+			await UPDATE_PART_NUMBER_ASSETS(input.keys[0], partnumberService, assetsService, null, database);
 		}
 	});
 

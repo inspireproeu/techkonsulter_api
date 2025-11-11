@@ -1513,7 +1513,7 @@ const mailbox = {
             throw new ServiceUnavailableException(e);
         }
     },
-    UPDATE_PART_NUMBER_ASSETS: async (id, partnumberService,assetsService, res, database)=> {
+    UPDATE_PART_NUMBER_ASSETS: async (id, partnumberService,assetsService, res)=> {
 		try {
 			const partnumber = await partnumberService.readByQuery({
 				fields: ["action", "part_no", "status", "model", "asset_type", "form_factor", "manufacturer", 'co2', 'weight'],
@@ -1582,6 +1582,7 @@ const mailbox = {
                     }
               
                    // Return combined result after loop
+                   if(res){
                     return res.json({
                       success: errors.length === 0,
                       processed: results.length,
@@ -1589,14 +1590,20 @@ const mailbox = {
                       results,
                       errors,
                     });
+                   }else {
+                    return
+                   }
+                    
 				}
 			}
 		} catch (error) {
-            return res.json({
+            if(res){
+                return res.json({
                 success:false,
                 msg:error
               });
-			throw new ServiceUnavailableException(error);
+            }
+          
 		}
 
 	}
