@@ -46,25 +46,22 @@ module.exports = {
     REFRESH_TOKEN_COOKIE_NAME: "directus_refresh_token",
     OAUTH_PROVIDERS: "",
     EXTENSIONS_PATH: "./extensions",
-    EMAIL_FROM: "no-reply@directus.io",
-    EMAIL_TRANSPORT: "sendmail",
     EMAIL_SENDMAIL_NEW_LINE: "unix ",
     EMAIL_SENDMAIL_PATH: "/usr/sbin/sendmail",
     DB_SSL__REJECT_UNAUTHORIZED: false,
     NODE_TLS_REJECT_UNAUTHORIZED: 0,
     MESSENGER_NAMESPACE: 'TK',
     EMAIL_SMTP_NAME: 'TK',
-    EMAIL_FROM: "support@itreon.se",
+    EMAIL_FROM: "info@itreon.se",
     EMAIL_TRANSPORT: "smtp",
-    EMAIL_SMTP_HOST: "smtp.elasticemail.com",
+    EMAIL_SMTP_HOST: "smtp.postmarkapp.com",
     EMAIL_SMTP_PORT: 2525,
     EMAIL_SMTP_SECURE: false,
     EMAIL_SMTP_IGNORE_TLS: false,
-    EMAIL_SMTP_USER: "support@itadalliance.com",
-    EMAIL_SMTP_PASSWORD: "2FB66B71AA77CC5FFB4939C3DF24AB5DECA9",
+    EMAIL_SMTP_USER: "46de4099-57dc-4629-899b-dd06478d43f5",
+    EMAIL_SMTP_PASSWORD: "46de4099-57dc-4629-899b-dd06478d43f5",
     ssl: {
         rejectUnauthorized: false,
         ca: fs.readFileSync('./cert/ca-certificate.crt').toString()
     }
-
 };
